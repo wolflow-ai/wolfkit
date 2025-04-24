@@ -1,0 +1,15 @@
+# Python caches
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Temporary files and folders
+*.bak
+*.log
+backups/
+temp/
+
+# Local working docs
+.docs/

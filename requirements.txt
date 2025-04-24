@@ -1,0 +1,33 @@
+# ===============================================================
+# Wolfkit - Try, Test, Trust File Staging Tool
+# ===============================================================
+# This file lists all packages required for the Wolfkit application,
+# including GUI dependencies and utility functions.
+# ===============================================================
+
+# ===============================================================
+# GUI Dependencies
+# ===============================================================
+
+# ttkbootstrap: Modern themed wrapper for Tkinter
+# Used to build the visual interface with buttons, labels, text areas
+ttkbootstrap>=1.10.1
+
+# ===============================================================
+# Optional GUI (only used for advanced integrations later)
+# ===============================================================
+# pillow: Image handling for potential future icon previews
+# pillow>=10.0.0
+
+# ===============================================================
+# System Libraries (standard Python)
+# ===============================================================
+# tkinter: Built into Python 3.x (used via ttkbootstrap)
+# subprocess, os, shutil: Core to Python and used natively
+# No need to list unless packaging for frozen distros
+
+# ===============================================================
+# Installation Notes
+# ===============================================================
+# To install dependencies:
+# pip install -r requirements.txt
