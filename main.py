@@ -1,5 +1,4 @@
-# main.py
-#This is a replacement test file
+# === main.py ===
 import ttkbootstrap as ttkb
 from ttkbootstrap.constants import *
 from ui.app_frame import AppFrame

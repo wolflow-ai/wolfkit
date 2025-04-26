@@ -18,11 +18,6 @@ It’s the “test chamber” for your dev cycle.
 
 ---
 
-## 🖼️ GUI
-![](https://github.com/CLewisMessina/wolfkit/blob/main/app-screenshot-superhero-theme.png)
-
----
-
 ## 🚀 Quickstart
 
 ```bash

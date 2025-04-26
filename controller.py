@@ -1,9 +1,9 @@
-# controller.py
-#This is a replacement test file
+# === controller.py ===
 import os
 import shutil
 import subprocess
 import sys
+import webbrowser
 
 BACKUP_DIR = "./backups"
 PROJECT_DIR = None
@@ -53,7 +53,21 @@ def run_project_entry():
         subprocess.Popen([sys.executable, "main.py"], cwd=PROJECT_DIR, creationflags=flags)
         return True, "Launching project: python main.py"
     except Exception as e:
-        return False, f"Failed to launch project: {str(e)}"
+        return False, f"Failed to launch Python project: {str(e)}"
+
+def open_static_web_page():
+    if not PROJECT_DIR:
+        return False, "No project directory set."
+
+    index_path = os.path.join(PROJECT_DIR, "index.html")
+    if not os.path.exists(index_path):
+        return False, "No index.html found in project directory."
+
+    try:
+        webbrowser.open(f"file://{index_path}")
+        return True, "Opening index.html in web browser."
+    except Exception as e:
+        return False, f"Failed to open web page: {str(e)}"
 
 def revert_file(target_filename):
     if not PROJECT_DIR:
@@ -62,15 +76,22 @@ def revert_file(target_filename):
     target_path = os.path.join(PROJECT_DIR, target_filename)
     backup_path = os.path.join(BACKUP_DIR, os.path.basename(PROJECT_DIR), target_filename + ".bak")
 
-    if not os.path.exists(backup_path):
-        return False, f"No backup exists for {target_filename}."
-
-    try:
-        shutil.copy2(backup_path, target_path)
-        os.remove(backup_path)
-        return True, f"Reverted {target_filename} to previous version."
-    except Exception as e:
-        return False, f"Failed to revert: {str(e)}"
+    if os.path.exists(backup_path):
+        try:
+            shutil.copy2(backup_path, target_path)
+            os.remove(backup_path)
+            return True, f"Reverted {target_filename} to previous version."
+        except Exception as e:
+            return False, f"Failed to revert {target_filename}: {str(e)}"
+    else:
+        if os.path.exists(target_path):
+            try:
+                os.remove(target_path)
+                return True, f"Removed new file {target_filename}."
+            except Exception as e:
+                return False, f"Failed to remove new file {target_filename}: {str(e)}"
+        else:
+            return False, f"No backup or original file found for {target_filename}."
 
 def accept_file(target_filename):
     if not PROJECT_DIR:
