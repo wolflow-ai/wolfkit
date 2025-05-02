@@ -64,7 +64,7 @@ Perfect for testing things like:
 
 ## 🖥️ Screenshot
 
-![Wolfkit Interface Top](https://github.com/CLewisMessina/wolfscribe/blob/main/assets/screenshots/wolfkit-screenshot.png)
+![Wolfkit Interface Top](https://github.com/CLewisMessina/wolfkit/blob/main/assets/screenshots/wolfkit-screenshot.png)
 
 
 ---
