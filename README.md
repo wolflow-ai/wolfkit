@@ -62,6 +62,13 @@ Perfect for testing things like:
 
 ---
 
+## 🖥️ Screenshot
+
+![Wolfkit Interface Top](https://github.com/CLewisMessina/wolfscribe/blob/main/assets/screenshots/wolfkit-screenshot.png)
+
+
+---
+
 ## 🧪 Try → Test → Trust Workflow
 
 1. **Set Project Directory**
