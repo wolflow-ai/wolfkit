@@ -49,9 +49,28 @@ def run_project_entry():
         return False, "No project directory set."
 
     try:
+        project_name = os.path.basename(PROJECT_DIR)
+        main_path = os.path.join(PROJECT_DIR, "main.py")
+
+        if not os.path.exists(main_path):
+            return False, f"No main.py found in {project_name}"
+
+        # Prefer local venv if found
+        venv_python = os.path.join(PROJECT_DIR, "venv", "Scripts", "python.exe") if sys.platform.startswith("win") \
+                      else os.path.join(PROJECT_DIR, "venv", "bin", "python")
+
+        if os.path.exists(venv_python):
+            python_exec = venv_python
+            note = "Using project venv"
+        else:
+            python_exec = sys.executable
+            note = "Using global Python"
+
         flags = subprocess.CREATE_NEW_CONSOLE if sys.platform.startswith("win") else 0
-        subprocess.Popen([sys.executable, "main.py"], cwd=PROJECT_DIR, creationflags=flags)
-        return True, "Launching project: python main.py"
+        subprocess.Popen([python_exec, "main.py"], cwd=PROJECT_DIR, creationflags=flags)
+
+        return True, f"{note}: Launching {project_name} with {os.path.basename(python_exec)}"
+
     except Exception as e:
         return False, f"Failed to launch Python project: {str(e)}"
 
@@ -79,19 +98,18 @@ def revert_file(target_filename):
     if os.path.exists(backup_path):
         try:
             shutil.copy2(backup_path, target_path)
-            os.remove(backup_path)
-            return True, f"Reverted {target_filename} to previous version."
+            return True, f"Reverted {target_filename} to backup version. Backup retained."
         except Exception as e:
             return False, f"Failed to revert {target_filename}: {str(e)}"
+    elif os.path.exists(target_path):
+        try:
+            os.remove(target_path)
+            return True, f"Removed newly added file {target_filename} (no backup existed)."
+        except Exception as e:
+            return False, f"Failed to remove new file {target_filename}: {str(e)}"
     else:
-        if os.path.exists(target_path):
-            try:
-                os.remove(target_path)
-                return True, f"Removed new file {target_filename}."
-            except Exception as e:
-                return False, f"Failed to remove new file {target_filename}: {str(e)}"
-        else:
-            return False, f"No backup or original file found for {target_filename}."
+        return False, f"No backup or current file found for {target_filename}."
+
 
 def accept_file(target_filename):
     if not PROJECT_DIR:
