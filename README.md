@@ -135,6 +135,15 @@ Each replacement file is backed up until you choose to accept the test version. 
 
 ---
 
+## 🧙‍♂️ Part of the Wolflow Ecosystem
+
+- [✨ Wolfscribe](https://github.com/CLewisMessina/wolfscribe) – Turn documents into datasets for LLM training, locally
+- [🐺 Wolftrain](https://github.com/CLewisMessina/wolftrain) – Local LoRA fine-tuning app
+- [📈 Wolftrack](https://github.com/CLewisMessina) – Token usage + metrics tracker *(coming soon)*
+
+---
+
+
 ## 💬 Built By
 
 A developer who wanted to feel safe experimenting—and finally found the right flow.
