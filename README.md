@@ -17,6 +17,13 @@ Wolfkit is a lightweight GUI tool for developers who want a fast, safe way to te
 - ✅ Auto-detect and launch the project’s own virtual environment (if available)
 
 ---
+## 📸 Demo Video (Press Play)
+
+
+https://github.com/user-attachments/assets/245d7690-bbb1-48d8-9730-c6541a200cc7
+
+
+---
 
 ## 🚀 Quickstart
 
