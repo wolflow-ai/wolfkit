@@ -10,7 +10,9 @@ venv/
 *.log
 backups/
 temp/
-/reports/
+/reports/*
+!/reports/.gitkeep
+
 
 
 # Local working docs
