@@ -4,11 +4,14 @@ import shutil
 import subprocess
 import sys
 import webbrowser
+from typing import List, Tuple
 
 BACKUP_DIR = "./backups"
 PROJECT_DIR = None
 
 os.makedirs(BACKUP_DIR, exist_ok=True)
+
+# === Existing Core Functions ===
 
 def set_project_directory(path):
     global PROJECT_DIR
@@ -110,7 +113,6 @@ def revert_file(target_filename):
     else:
         return False, f"No backup or current file found for {target_filename}."
 
-
 def accept_file(target_filename):
     if not PROJECT_DIR:
         return False, "No project directory set."
@@ -131,3 +133,149 @@ def accept_batch(batch):
 
 def revert_batch(batch):
     return [revert_file(target) for (_, target) in batch]
+
+# === NEW: Code Review Integration Functions ===
+
+def analyze_code_files(file_paths: List[str]) -> Tuple[bool, str, str]:
+    """
+    Analyze code files using AI and generate a report
+    
+    Args:
+        file_paths: List of file paths to analyze
+        
+    Returns:
+        Tuple of (success, report_path, message)
+    """
+    try:
+        from code_reviewer import analyze_files
+        return analyze_files(file_paths)
+    except ImportError as e:
+        return False, "", f"Code review module not available: {str(e)}"
+    except Exception as e:
+        return False, "", f"Failed to analyze files: {str(e)}"
+
+def check_code_review_config() -> Tuple[bool, str]:
+    """
+    Check if code review functionality is properly configured
+    
+    Returns:
+        Tuple of (success, message)
+    """
+    try:
+        from code_reviewer import check_reviewer_config
+        return check_reviewer_config()
+    except ImportError:
+        return False, "Code review module not available. Please install required dependencies:\npip install openai python-dotenv"
+    except Exception as e:
+        return False, f"Error checking configuration: {str(e)}"
+
+def get_project_files_for_analysis() -> List[str]:
+    """
+    Get a list of common code files in the current project directory
+    Useful for quick selection of project files for analysis
+    
+    Returns:
+        List of file paths found in the project
+    """
+    if not PROJECT_DIR:
+        return []
+    
+    # Common code file extensions to look for
+    code_extensions = {'.py', '.js', '.ts', '.html', '.css', '.json', '.md', '.txt'}
+    
+    project_files = []
+    
+    try:
+        for root, dirs, files in os.walk(PROJECT_DIR):
+            # Skip common directories that usually don't contain source code
+            dirs[:] = [d for d in dirs if d not in {'.git', '__pycache__', 'node_modules', '.vscode', '.idea', 'venv', 'env'}]
+            
+            for file in files:
+                file_path = os.path.join(root, file)
+                file_ext = os.path.splitext(file)[1].lower()
+                
+                if file_ext in code_extensions:
+                    # Make path relative to project directory for cleaner display
+                    relative_path = os.path.relpath(file_path, PROJECT_DIR)
+                    project_files.append(file_path)
+        
+        return sorted(project_files)
+        
+    except Exception as e:
+        return []
+
+def analyze_project_files() -> Tuple[bool, str, str]:
+    """
+    Analyze all code files in the current project directory
+    
+    Returns:
+        Tuple of (success, report_path, message)
+    """
+    if not PROJECT_DIR:
+        return False, "", "No project directory set."
+    
+    project_files = get_project_files_for_analysis()
+    
+    if not project_files:
+        return False, "", "No code files found in project directory."
+    
+    return analyze_code_files(project_files)
+
+def get_reports_directory() -> str:
+    """
+    Get the path to the reports directory
+    Creates it if it doesn't exist
+    
+    Returns:
+        Path to reports directory
+    """
+    reports_dir = "./reports"
+    os.makedirs(reports_dir, exist_ok=True)
+    return os.path.abspath(reports_dir)
+
+def list_recent_reports(limit: int = 10) -> List[Tuple[str, str]]:
+    """
+    Get a list of recent analysis reports
+    
+    Args:
+        limit: Maximum number of reports to return
+        
+    Returns:
+        List of tuples (filename, full_path) sorted by modification time (newest first)
+    """
+    reports_dir = get_reports_directory()
+    
+    try:
+        report_files = []
+        for file in os.listdir(reports_dir):
+            if file.startswith("wolfkit_analysis_") and file.endswith(".md"):
+                file_path = os.path.join(reports_dir, file)
+                mtime = os.path.getmtime(file_path)
+                report_files.append((mtime, file, file_path))
+        
+        # Sort by modification time (newest first) and return limited results
+        report_files.sort(reverse=True)
+        return [(filename, filepath) for (_, filename, filepath) in report_files[:limit]]
+        
+    except Exception:
+        return []
+
+# === Convenience Functions for GUI Integration ===
+
+def quick_analyze_files(file_paths: List[str]) -> Tuple[bool, str]:
+    """
+    Quick analysis function that returns just success and message
+    Suitable for simple status updates
+    """
+    success, report_path, message = analyze_code_files(file_paths)
+    return success, message
+
+def get_analysis_status() -> str:
+    """
+    Get a status string about code review configuration
+    """
+    success, message = check_code_review_config()
+    if success:
+        return "✅ Code review ready"
+    else:
+        return "❌ Code review not configured"

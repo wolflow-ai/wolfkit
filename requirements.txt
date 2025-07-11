@@ -2,7 +2,7 @@
 # Wolfkit - Try, Test, Trust File Staging Tool
 # ===============================================================
 # This file lists all packages required for the Wolfkit application,
-# including GUI dependencies and utility functions.
+# including GUI dependencies, utility functions, and LLM integration.
 # ===============================================================
 
 # ===============================================================
@@ -12,6 +12,18 @@
 # ttkbootstrap: Modern themed wrapper for Tkinter
 # Used to build the visual interface with buttons, labels, text areas
 ttkbootstrap>=1.10.1
+
+# ===============================================================
+# LLM Integration Dependencies (NEW)
+# ===============================================================
+
+# openai: Official OpenAI API client for code analysis
+# Used by the Code Review module for AI-powered file analysis
+openai>=1.0.0
+
+# python-dotenv: Environment variable management
+# Used to load API keys and configuration from .env file
+python-dotenv>=1.0.0
 
 # ===============================================================
 # Optional GUI (only used for advanced integrations later)
@@ -24,6 +36,8 @@ ttkbootstrap>=1.10.1
 # ===============================================================
 # tkinter: Built into Python 3.x (used via ttkbootstrap)
 # subprocess, os, shutil: Core to Python and used natively
+# pathlib, datetime, typing: Built into Python 3.x
+# json: Built into Python 3.x
 # No need to list unless packaging for frozen distros
 
 # ===============================================================
@@ -31,3 +45,9 @@ ttkbootstrap>=1.10.1
 # ===============================================================
 # To install dependencies:
 # pip install -r requirements.txt
+#
+# After installation, create a .env file in the project root:
+# OPENAI_API_KEY=your_api_key_here
+#
+# For Code Review functionality, you'll need an OpenAI API key
+# from: https://platform.openai.com/api-keys

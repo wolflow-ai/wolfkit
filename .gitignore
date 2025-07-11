@@ -13,3 +13,6 @@ temp/
 
 # Local working docs
 .docs/
+
+# ENV setup
+*.env
