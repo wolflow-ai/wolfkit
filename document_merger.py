@@ -24,6 +24,7 @@ class DocumentCluster:
         self.similarity_score = similarity_score
         self.suggested_merge_name = self._generate_merge_name()
         self.merge_preview = None
+        self.selected_documents = documents.copy()  # For custom selection
         
     def _generate_merge_name(self) -> str:
         """Generate a suggested name for the merged document"""
@@ -35,9 +36,56 @@ class DocumentCluster:
             common_words &= set(name.split('_'))
         
         if common_words:
-            return f"merged_{'_'.join(sorted(common_words))}.md"
-        else:
-            return f"merged_cluster_{self.cluster_id}.md"
+            # Remove common non-descriptive words that appear in many document types
+            filtered_words = [w for w in common_words if w not in {
+                'doc', 'document', 'file', 'pdf', 'docx', 'txt', 'md',
+                'copy', 'final', 'draft', 'v1', 'v2', 'version', 'new', 'old',
+                'temp', 'tmp', 'backup', 'bak', 'archive'
+            }]
+            if filtered_words:
+                return f"merged_{'_'.join(sorted(filtered_words))}.md"
+        
+        # Extract potential topic words from filenames using common patterns
+        topic_hints = []
+        for doc in self.documents:
+            name_lower = Path(doc).stem.lower()
+            # Look for meaningful words that aren't common file descriptors
+            words = name_lower.replace('-', '_').split('_')
+            meaningful_words = [w for w in words if len(w) > 2 and w not in {
+                'doc', 'document', 'file', 'pdf', 'docx', 'txt', 'md',
+                'copy', 'final', 'draft', 'version', 'new', 'old', 'the', 'and', 'for'
+            }]
+            topic_hints.extend(meaningful_words)
+        
+        # Find most common meaningful word
+        if topic_hints:
+            from collections import Counter
+            most_common = Counter(topic_hints).most_common(1)
+            if most_common:
+                return f"merged_{most_common[0][0]}_documents.md"
+        
+        # Final fallback
+        return f"merged_cluster_{self.cluster_id}.md"
+    
+    def get_preview_text(self, max_length: int = 200) -> str:
+        """Get a short preview of the merge content"""
+        if not self.merge_preview:
+            return "Preview not generated yet..."
+        
+        # Clean up markdown and get first meaningful text
+        lines = self.merge_preview.split('\n')
+        clean_text = ""
+        
+        for line in lines:
+            # Skip markdown headers and empty lines
+            if line.strip() and not line.startswith('#') and not line.startswith('**'):
+                clean_text += line.strip() + " "
+                if len(clean_text) > max_length:
+                    break
+        
+        if len(clean_text) > max_length:
+            return clean_text[:max_length] + "..."
+        return clean_text or "Content preview available..."
 
 class DocumentMerger:
     """Main class for document clustering and merging operations"""
@@ -46,6 +94,7 @@ class DocumentMerger:
         self.client = None
         self.converter = DocumentConverter()
         self.documents_cache = {}  # Cache for processed documents
+        self.current_clusters = []  # Store current analysis results
         
     def check_merger_config(self) -> Tuple[bool, str]:
         """Check if document merger is properly configured"""
@@ -125,11 +174,11 @@ class DocumentMerger:
         stat = file_path.stat()
         return hashlib.md5(f"{file_path}_{stat.st_mtime}_{stat.st_size}".encode()).hexdigest()
     
-    def generate_embeddings(self, documents: List[str]) -> Tuple[bool, np.ndarray, str]:
+    def generate_embeddings(self, documents: List[str]) -> Tuple[bool, np.ndarray, List[str], str]:
         """Generate embeddings for document clustering"""
         try:
             if not self.client:
-                return False, np.array([]), "OpenAI client not initialized"
+                return False, np.array([]), [], "OpenAI client not initialized"
             
             # Extract content from all documents
             contents = []
@@ -144,7 +193,7 @@ class DocumentMerger:
                     valid_docs.append(doc_path)
             
             if not contents:
-                return False, np.array([]), "No valid document content found"
+                return False, np.array([]), [], "No valid document content found"
             
             # Generate embeddings in batches
             embeddings = []
@@ -162,10 +211,10 @@ class DocumentMerger:
             
             embeddings_array = np.array(embeddings)
             
-            return True, embeddings_array, f"Generated embeddings for {len(valid_docs)} documents"
+            return True, embeddings_array, valid_docs, f"Generated embeddings for {len(valid_docs)} documents"
             
         except Exception as e:
-            return False, np.array([]), f"Error generating embeddings: {str(e)}"
+            return False, np.array([]), [], f"Error generating embeddings: {str(e)}"
     
     def cluster_documents(self, documents: List[str], num_clusters: Optional[int] = None) -> Tuple[bool, List[DocumentCluster], str]:
         """Cluster documents based on semantic similarity"""
@@ -174,14 +223,17 @@ class DocumentMerger:
                 return False, [], "Need at least 2 documents for clustering"
             
             # Generate embeddings
-            success, embeddings, msg = self.generate_embeddings(documents)
+            success, embeddings, valid_docs, msg = self.generate_embeddings(documents)
             if not success:
                 return False, [], msg
             
             # Determine optimal number of clusters
             if num_clusters is None:
                 # Use elbow method or default to sqrt(n/2)
-                num_clusters = max(2, min(len(documents) // 3, int(np.sqrt(len(documents) / 2))))
+                num_clusters = max(2, min(len(valid_docs) // 3, int(np.sqrt(len(valid_docs) / 2))))
+            
+            # Ensure we don't have more clusters than documents
+            num_clusters = min(num_clusters, len(valid_docs))
             
             # Perform clustering
             kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
@@ -190,7 +242,7 @@ class DocumentMerger:
             # Calculate cluster similarities
             clusters = []
             for cluster_id in range(num_clusters):
-                cluster_docs = [documents[i] for i, label in enumerate(cluster_labels) if label == cluster_id]
+                cluster_docs = [valid_docs[i] for i, label in enumerate(cluster_labels) if label == cluster_id]
                 
                 if len(cluster_docs) > 1:  # Only include clusters with multiple documents
                     # Calculate average similarity within cluster
@@ -206,6 +258,9 @@ class DocumentMerger:
                     cluster = DocumentCluster(cluster_id, cluster_docs, avg_similarity)
                     clusters.append(cluster)
             
+            # Store clusters for UI access
+            self.current_clusters = clusters
+            
             return True, clusters, f"Found {len(clusters)} clusters with {sum(len(c.documents) for c in clusters)} documents"
             
         except Exception as e:
@@ -217,16 +272,19 @@ class DocumentMerger:
             if not self.client:
                 return False, "", "OpenAI client not initialized"
             
-            # Extract content from all documents in cluster
+            # Use selected documents (allows for custom selection)
+            documents_to_merge = cluster.selected_documents
+            
+            # Extract content from selected documents in cluster
             documents_content = []
-            for doc_path in cluster.documents:
+            for doc_path in documents_to_merge:
                 success, content, _ = self.extract_document_content(doc_path)
                 if success:
                     doc_name = Path(doc_path).name
                     documents_content.append(f"=== {doc_name} ===\n{content}\n")
             
             if not documents_content:
-                return False, "", "No content found in cluster documents"
+                return False, "", "No content found in selected documents"
             
             # Create merge prompt
             combined_content = "\n".join(documents_content)
@@ -261,6 +319,35 @@ Please provide the merged document:
             
         except Exception as e:
             return False, "", f"Error generating merge preview: {str(e)}"
+    
+    def perform_cluster_merge(self, cluster: DocumentCluster, output_path: str, custom_name: str = None) -> Tuple[bool, str, str]:
+        """Actually perform the merge and save the result"""
+        try:
+            # Generate merge content if not already done
+            if not cluster.merge_preview:
+                success, _, msg = self.generate_merge_preview(cluster)
+                if not success:
+                    return False, "", f"Failed to generate merge content: {msg}"
+            
+            # Determine output filename
+            if custom_name:
+                filename = custom_name if custom_name.endswith('.md') else f"{custom_name}.md"
+            else:
+                filename = cluster.suggested_merge_name
+            
+            full_output_path = os.path.join(output_path, filename)
+            
+            # Ensure output directory exists
+            os.makedirs(output_path, exist_ok=True)
+            
+            # Write merged content
+            with open(full_output_path, 'w', encoding='utf-8') as f:
+                f.write(cluster.merge_preview)
+            
+            return True, full_output_path, f"Successfully merged {len(cluster.selected_documents)} documents into {filename}"
+            
+        except Exception as e:
+            return False, "", f"Error performing merge: {str(e)}"
     
     def save_merge_report(self, clusters: List[DocumentCluster], output_dir: str = "./reports") -> Tuple[bool, str, str]:
         """Save clustering and merge analysis report"""
@@ -306,39 +393,39 @@ def check_document_merger_config() -> Tuple[bool, str]:
     merger = DocumentMerger()
     return merger.check_merger_config()
 
-def analyze_documents_in_folder(folder_path: str, num_clusters: Optional[int] = None) -> Tuple[bool, str, str]:
-    """Analyze and cluster documents in a folder"""
+def analyze_documents_in_folder(folder_path: str, num_clusters: Optional[int] = None) -> Tuple[bool, List[DocumentCluster], str]:
+    """Analyze and cluster documents in a folder, return clusters for UI"""
     try:
         merger = DocumentMerger()
         
         # Check configuration
         config_ok, config_msg = merger.check_merger_config()
         if not config_ok:
-            return False, "", config_msg
+            return False, [], config_msg
         
         # Scan documents
         documents = merger.scan_documents(folder_path)
         if not documents:
-            return False, "", f"No supported documents found in {folder_path}"
+            return False, [], f"No supported documents found in {folder_path}"
         
         # Cluster documents
         success, clusters, cluster_msg = merger.cluster_documents(documents, num_clusters)
         if not success:
-            return False, "", cluster_msg
+            return False, [], cluster_msg
         
         # Generate merge previews for each cluster
         for cluster in clusters:
             merger.generate_merge_preview(cluster)
         
-        # Save analysis report
-        report_success, report_path, report_msg = merger.save_merge_report(clusters)
-        if not report_success:
-            return False, "", report_msg
-        
-        return True, report_path, f"Document analysis complete: {len(clusters)} clusters found"
+        return True, clusters, f"Document analysis complete: {len(clusters)} clusters found"
         
     except Exception as e:
-        return False, "", f"Error analyzing documents: {str(e)}"
+        return False, [], f"Error analyzing documents: {str(e)}"
+
+def merge_document_cluster(cluster: DocumentCluster, output_path: str, custom_name: str = None) -> Tuple[bool, str, str]:
+    """Merge a specific cluster and save the result"""
+    merger = DocumentMerger()
+    return merger.perform_cluster_merge(cluster, output_path, custom_name)
 
 def get_supported_document_types() -> List[str]:
     """Get list of supported document file extensions"""
