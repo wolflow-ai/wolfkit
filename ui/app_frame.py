@@ -2,7 +2,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
-from ttkbootstrap import Frame, Label, Button, Text, Scrollbar, Radiobutton, Notebook
+from ttkbootstrap import Frame, Label, Button, Text, Scrollbar, Radiobutton, Notebook, Style
 from ttkbootstrap.constants import *
 from controller import (
     stage_file,
@@ -28,7 +28,10 @@ class AppFrame(Frame):
         self.selected_analysis_files = []
         self.last_report_path = None
 
-        # Create main notebook for tabs
+        # Configure custom tab styling
+        self._configure_tab_styling()
+
+        # Create main notebook for tabs (using default style)
         self.notebook = Notebook(self)
         self.notebook.pack(fill=BOTH, expand=YES)
 
@@ -42,6 +45,37 @@ class AppFrame(Frame):
 
         self._setup_main_tab()
         self._setup_review_tab()
+
+    def _configure_tab_styling(self):
+        """Configure custom styling for notebook tabs to show active/inactive states"""
+        style = Style()
+        
+        # Get the current theme colors
+        theme_colors = style.colors
+        
+        # Set the base configuration for default tab appearance
+        style.configure(
+            "TNotebook.Tab",
+            background=theme_colors.light,
+            foreground=theme_colors.secondary,
+            padding=[12, 8],
+            font=("TkDefaultFont", 10)
+        )
+        
+        # Map the state-based color changes
+        style.map(
+            "TNotebook.Tab",
+            background=[
+                ("selected", theme_colors.primary),
+                ("active", theme_colors.info),
+                ("", theme_colors.light)  # Use empty state instead of "!selected"
+            ],
+            foreground=[
+                ("selected", "white"),
+                ("active", theme_colors.dark),
+                ("", theme_colors.secondary)  # Use empty state instead of "!selected"
+            ]
+        )
 
     def _setup_main_tab(self):
         """Setup the main workflow tab (existing functionality)"""
@@ -100,7 +134,7 @@ class AppFrame(Frame):
         header_frame = Frame(self.review_tab)
         header_frame.pack(fill=X, pady=(0, 10))
 
-        review_title = Label(header_frame, text="🤖 AI Code Review", font=("TkDefaultFont", 12, "bold"))
+        review_title = Label(header_frame, text="AI Code Review", font=("TkDefaultFont", 12, "bold"))
         review_title.pack(anchor="w")
 
         review_subtitle = Label(header_frame, text="Analyze code files for common issues before staging", font=("TkDefaultFont", 9))
@@ -117,7 +151,10 @@ class AppFrame(Frame):
         self.select_analysis_files_btn.pack(side=LEFT, padx=(0, 10))
 
         self.check_config_btn = Button(file_buttons_frame, text="Check Configuration", bootstyle="info-outline", command=self.check_analysis_config)
-        self.check_config_btn.pack(side=LEFT)
+        self.check_config_btn.pack(side=LEFT, padx=(0, 10))
+
+        self.clear_selection_btn = Button(file_buttons_frame, text="Clear Selection", bootstyle="secondary", command=self.clear_file_selection)
+        self.clear_selection_btn.pack(side=LEFT, padx=(0, 10))
 
         self.analysis_files_label = Label(file_section, text="No files selected for analysis", anchor="w")
         self.analysis_files_label.pack(fill=X)
@@ -126,7 +163,7 @@ class AppFrame(Frame):
         analysis_controls_frame = Frame(self.review_tab)
         analysis_controls_frame.pack(fill=X, pady=(0, 10))
 
-        self.analyze_button = Button(analysis_controls_frame, text="🔍 Analyze Files", bootstyle="primary", command=self.analyze_selected_files)
+        self.analyze_button = Button(analysis_controls_frame, text="Analyze Files", bootstyle="primary", command=self.analyze_selected_files)
         self.analyze_button.pack(side=LEFT, padx=(0, 10))
 
         self.open_report_button = Button(analysis_controls_frame, text="📄 Open Last Report", bootstyle="success-outline", command=self.open_last_report)
@@ -336,6 +373,12 @@ class AppFrame(Frame):
         self.analysis_text.config(state="normal")
         self.analysis_text.delete("1.0", "end")
         self.analysis_text.config(state="disabled")
+
+    def clear_file_selection(self):
+        """Clear the selected files for analysis"""
+        self.selected_analysis_files = []
+        self.analysis_files_label.config(text="No files selected for analysis")
+        self._write_analysis("File selection cleared.")
 
     def _write_analysis(self, text):
         """Write text to the analysis output area"""
