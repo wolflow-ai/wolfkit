@@ -2,7 +2,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
-from ttkbootstrap import Frame, Label, Button, Text, Scrollbar, Radiobutton, Notebook, Style
+from ttkbootstrap import Frame, Label, Button, Text, Scrollbar, Radiobutton, Notebook, Style, Progressbar, Spinbox
 from ttkbootstrap.constants import *
 from controller import (
     stage_file,
@@ -16,6 +16,7 @@ from controller import (
     revert_batch
 )
 from code_reviewer import analyze_files, check_reviewer_config
+from document_merger import check_document_merger_config, analyze_documents_in_folder, get_supported_document_types
 import webbrowser
 import subprocess
 import sys
@@ -27,6 +28,11 @@ class AppFrame(Frame):
         self.launch_type = tk.StringVar(value="python")
         self.selected_analysis_files = []
         self.last_report_path = None
+        
+        # Document merge variables
+        self.selected_document_folder = None
+        self.num_clusters = tk.IntVar(value=3)
+        self.last_merge_report_path = None
 
         # Configure custom tab styling
         self._configure_tab_styling()
@@ -42,9 +48,14 @@ class AppFrame(Frame):
         # Create code review tab
         self.review_tab = Frame(self.notebook)
         self.notebook.add(self.review_tab, text="Code Review")
+        
+        # Create document merge tab
+        self.merge_tab = Frame(self.notebook)
+        self.notebook.add(self.merge_tab, text="Document Merge")
 
         self._setup_main_tab()
         self._setup_review_tab()
+        self._setup_merge_tab()
 
     def _configure_tab_styling(self):
         """Configure custom styling for notebook tabs to show active/inactive states"""
@@ -129,12 +140,12 @@ class AppFrame(Frame):
         self.console_text.config(yscrollcommand=scrollbar.set)
 
     def _setup_review_tab(self):
-        """Setup the code review tab (new functionality)"""
+        """Setup the code review tab (existing functionality)"""
         # Header info
         header_frame = Frame(self.review_tab)
         header_frame.pack(fill=X, pady=(0, 10))
 
-        review_title = Label(header_frame, text="AI Code Review", font=("TkDefaultFont", 12, "bold"))
+        review_title = Label(header_frame, text="🤖 AI Code Review", font=("TkDefaultFont", 12, "bold"))
         review_title.pack(anchor="w")
 
         review_subtitle = Label(header_frame, text="Analyze code files for common issues before staging", font=("TkDefaultFont", 9))
@@ -153,8 +164,8 @@ class AppFrame(Frame):
         self.check_config_btn = Button(file_buttons_frame, text="Check Configuration", bootstyle="info-outline", command=self.check_analysis_config)
         self.check_config_btn.pack(side=LEFT, padx=(0, 10))
 
-        self.clear_selection_btn = Button(file_buttons_frame, text="Clear Selection", bootstyle="secondary", command=self.clear_file_selection)
-        self.clear_selection_btn.pack(side=LEFT, padx=(0, 10))
+        self.clear_selection_btn = Button(file_buttons_frame, text="Clear Selection", bootstyle="secondary-outline", command=self.clear_file_selection)
+        self.clear_selection_btn.pack(side=LEFT)
 
         self.analysis_files_label = Label(file_section, text="No files selected for analysis", anchor="w")
         self.analysis_files_label.pack(fill=X)
@@ -163,7 +174,7 @@ class AppFrame(Frame):
         analysis_controls_frame = Frame(self.review_tab)
         analysis_controls_frame.pack(fill=X, pady=(0, 10))
 
-        self.analyze_button = Button(analysis_controls_frame, text="Analyze Files", bootstyle="primary", command=self.analyze_selected_files)
+        self.analyze_button = Button(analysis_controls_frame, text="🔍 Analyze Files", bootstyle="primary", command=self.analyze_selected_files)
         self.analyze_button.pack(side=LEFT, padx=(0, 10))
 
         self.open_report_button = Button(analysis_controls_frame, text="📄 Open Last Report", bootstyle="success-outline", command=self.open_last_report)
@@ -186,6 +197,85 @@ class AppFrame(Frame):
         analysis_scrollbar = Scrollbar(analysis_frame, command=self.analysis_text.yview)
         analysis_scrollbar.pack(side=RIGHT, fill=Y)
         self.analysis_text.config(yscrollcommand=analysis_scrollbar.set)
+
+    def _setup_merge_tab(self):
+        """Setup the document merge tab (new functionality)"""
+        # Header info
+        merge_header_frame = Frame(self.merge_tab)
+        merge_header_frame.pack(fill=X, pady=(0, 10))
+
+        merge_title = Label(merge_header_frame, text="📄 Document Clustering & Merge", font=("TkDefaultFont", 12, "bold"))
+        merge_title.pack(anchor="w")
+
+        merge_subtitle = Label(merge_header_frame, text="Semantically cluster and merge related documents using AI", font=("TkDefaultFont", 9))
+        merge_subtitle.pack(anchor="w")
+
+        # Supported formats info
+        formats_text = f"Supported: {', '.join(get_supported_document_types())}"
+        formats_label = Label(merge_header_frame, text=formats_text, font=("TkDefaultFont", 8), foreground="gray")
+        formats_label.pack(anchor="w")
+
+        # Folder selection section
+        folder_section = Frame(self.merge_tab)
+        folder_section.pack(fill=X, pady=(0, 10))
+
+        folder_buttons_frame = Frame(folder_section)
+        folder_buttons_frame.pack(fill=X, pady=(0, 5))
+
+        self.select_document_folder_btn = Button(folder_buttons_frame, text="Select Document Folder", command=self.select_document_folder)
+        self.select_document_folder_btn.pack(side=LEFT, padx=(0, 10))
+
+        self.check_merge_config_btn = Button(folder_buttons_frame, text="Check Configuration", bootstyle="info-outline", command=self.check_merge_config)
+        self.check_merge_config_btn.pack(side=LEFT, padx=(0, 10))
+
+        self.clear_folder_btn = Button(folder_buttons_frame, text="Clear Folder", bootstyle="secondary-outline", command=self.clear_document_folder)
+        self.clear_folder_btn.pack(side=LEFT)
+
+        self.document_folder_label = Label(folder_section, text="No document folder selected", anchor="w")
+        self.document_folder_label.pack(fill=X)
+
+        # Clustering settings
+        settings_frame = Frame(self.merge_tab)
+        settings_frame.pack(fill=X, pady=(0, 10))
+
+        Label(settings_frame, text="Number of clusters:").pack(side=LEFT)
+        self.cluster_spinbox = Spinbox(settings_frame, from_=2, to=20, textvariable=self.num_clusters, width=5)
+        self.cluster_spinbox.pack(side=LEFT, padx=(5, 10))
+
+        auto_clusters_btn = Button(settings_frame, text="Auto", bootstyle="secondary-outline", command=self.auto_detect_clusters)
+        auto_clusters_btn.pack(side=LEFT)
+
+        # Analysis controls
+        merge_controls_frame = Frame(self.merge_tab)
+        merge_controls_frame.pack(fill=X, pady=(0, 10))
+
+        self.analyze_documents_button = Button(merge_controls_frame, text="🔍 Analyze Documents", bootstyle="primary", command=self.analyze_documents)
+        self.analyze_documents_button.pack(side=LEFT, padx=(0, 10))
+
+        self.open_merge_report_button = Button(merge_controls_frame, text="📄 Open Last Report", bootstyle="success-outline", command=self.open_last_merge_report)
+        self.open_merge_report_button.pack(side=LEFT, padx=(0, 10))
+        self.open_merge_report_button.config(state="disabled")
+
+        self.clear_merge_output_button = Button(merge_controls_frame, text="Clear Output", bootstyle="secondary", command=self.clear_merge_output)
+        self.clear_merge_output_button.pack(side=LEFT)
+
+        # Progress bar for long operations
+        self.merge_progress = Progressbar(self.merge_tab, mode='indeterminate')
+        self.merge_progress.pack(fill=X, pady=(0, 10))
+
+        # Analysis output
+        merge_output_label = Label(self.merge_tab, text="Analysis Output:")
+        merge_output_label.pack(anchor="w", pady=(10, 0))
+
+        merge_frame = Frame(self.merge_tab)
+        merge_frame.pack(fill=BOTH, expand=YES)
+
+        self.merge_text = Text(merge_frame, wrap="word", height=20)
+        self.merge_text.pack(side=LEFT, fill=BOTH, expand=YES)
+
+        merge_scrollbar = Scrollbar(merge_frame, command=self.merge_text.yview)
+        merge_scrollbar.pack(side=RIGHT, fill=Y)
+        self.merge_text.config(yscrollcommand=merge_scrollbar.set)
 
     # === Main Tab Methods (existing functionality) ===
 
@@ -270,7 +360,7 @@ class AppFrame(Frame):
         self.console_text.delete("1.0", "end")
         self.console_text.config(state="disabled")
 
-    # === Code Review Tab Methods (new functionality) ===
+    # === Code Review Tab Methods (existing functionality) ===
 
     def select_analysis_files(self):
         """Select files for AI analysis"""
@@ -386,3 +476,117 @@ class AppFrame(Frame):
         self.analysis_text.insert("end", text + "\n")
         self.analysis_text.see("end")
         self.analysis_text.config(state="disabled")
+
+    # === Document Merge Tab Methods (new functionality) ===
+
+    def select_document_folder(self):
+        """Select folder containing documents to analyze"""
+        folder_path = filedialog.askdirectory(title="Select Folder with Documents to Cluster")
+        if folder_path:
+            self.selected_document_folder = folder_path
+            folder_name = os.path.basename(folder_path)
+            self.document_folder_label.config(text=f"Selected: {folder_name} ({folder_path})")
+            self._write_merge(f"Selected document folder: {folder_path}")
+        else:
+            self._write_merge("No folder selected.")
+
+    def check_merge_config(self):
+        """Check if document merger is properly configured"""
+        success, message = check_document_merger_config()
+        self._write_merge("Configuration Check:")
+        self._write_merge(message)
+        
+        if success:
+            self._write_merge("✅ Ready to analyze documents!")
+        else:
+            self._write_merge("❌ Configuration issues found. Please check your .env file and dependencies.")
+
+    def clear_document_folder(self):
+        """Clear the selected document folder"""
+        self.selected_document_folder = None
+        self.document_folder_label.config(text="No document folder selected")
+        self._write_merge("Document folder selection cleared.")
+
+    def auto_detect_clusters(self):
+        """Automatically detect optimal number of clusters"""
+        self.num_clusters.set(0)  # 0 means auto-detect
+        self._write_merge("Set to auto-detect optimal number of clusters.")
+
+    def analyze_documents(self):
+        """Analyze and cluster documents in the selected folder"""
+        if not self.selected_document_folder:
+            self._write_merge("❌ No document folder selected. Please select a folder first.")
+            return
+
+        self._write_merge("🔍 Starting document analysis and clustering...")
+        self._write_merge(f"Scanning folder: {self.selected_document_folder}")
+
+        # Show progress and disable button
+        self.merge_progress.start()
+        self.analyze_documents_button.config(state="disabled", text="Analyzing...")
+
+        # Use after to run analysis in background (pseudo-threading for demo)
+        self.after(100, self._run_document_analysis)
+
+    def _run_document_analysis(self):
+        """Run the actual document analysis"""
+        try:
+            num_clusters = self.num_clusters.get() if self.num_clusters.get() > 0 else None
+            
+            success, report_path, message = analyze_documents_in_folder(
+                self.selected_document_folder, 
+                num_clusters
+            )
+            
+            if success:
+                self.last_merge_report_path = report_path
+                self.open_merge_report_button.config(state="normal")
+                self._write_merge(f"✅ {message}")
+                self._write_merge(f"📄 Report saved to: {report_path}")
+                self._write_merge("Click 'Open Last Report' to view the clustering analysis.")
+            else:
+                self._write_merge(f"❌ Analysis failed: {message}")
+                
+        except Exception as e:
+            self._write_merge(f"❌ Unexpected error during analysis: {str(e)}")
+        
+        finally:
+            # Re-enable the analyze button and stop progress
+            self.merge_progress.stop()
+            self.analyze_documents_button.config(state="normal", text="🔍 Analyze Documents")
+
+    def open_last_merge_report(self):
+        """Open the last generated merge analysis report"""
+        if not self.last_merge_report_path or not os.path.exists(self.last_merge_report_path):
+            self._write_merge("❌ No report available to open.")
+            return
+
+        try:
+            if sys.platform.startswith('win'):
+                os.startfile(self.last_merge_report_path)
+            elif sys.platform.startswith('darwin'):
+                subprocess.run(['open', self.last_merge_report_path])
+            else:
+                subprocess.run(['xdg-open', self.last_merge_report_path])
+            
+            self._write_merge(f"📄 Opened report: {os.path.basename(self.last_merge_report_path)}")
+        except Exception as e:
+            # Fallback: try to open with webbrowser
+            try:
+                webbrowser.open(f"file://{os.path.abspath(self.last_merge_report_path)}")
+                self._write_merge(f"📄 Opened report in browser: {os.path.basename(self.last_merge_report_path)}")
+            except Exception as e2:
+                self._write_merge(f"❌ Failed to open report: {str(e2)}")
+
+    def clear_merge_output(self):
+        """Clear the merge analysis output text area"""
+        self.merge_text.config(state="normal")
+        self.merge_text.delete("1.0", "end")
+        self.merge_text.config(state="disabled")
+
+    def _write_merge(self, text):
+        """Write text to the merge analysis output area"""
+        self.merge_text.config(state="normal")
+        self.merge_text.insert("end", text + "\n")
+        self.merge_text.see("end")
+        self.merge_text.config(state="disabled")

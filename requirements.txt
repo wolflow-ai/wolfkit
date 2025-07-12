@@ -2,7 +2,8 @@
 # Wolfkit - Try, Test, Trust File Staging Tool
 # ===============================================================
 # This file lists all packages required for the Wolfkit application,
-# including GUI dependencies, utility functions, and LLM integration.
+# including GUI dependencies, utility functions, LLM integration,
+# and NEW document clustering & merge functionality.
 # ===============================================================
 
 # ===============================================================
@@ -14,16 +15,32 @@
 ttkbootstrap>=1.10.1
 
 # ===============================================================
-# LLM Integration Dependencies (NEW)
+# LLM Integration Dependencies
 # ===============================================================
 
-# openai: Official OpenAI API client for code analysis
-# Used by the Code Review module for AI-powered file analysis
+# openai: Official OpenAI API client for code analysis AND document processing
+# Used by both Code Review and Document Merge modules
 openai>=1.0.0
 
 # python-dotenv: Environment variable management
 # Used to load API keys and configuration from .env file
 python-dotenv>=1.0.0
+
+# ===============================================================
+# NEW: Document Processing & Clustering Dependencies
+# ===============================================================
+
+# docling: Advanced document processing (PDF, Word, etc.)
+# Used for extracting text content from various document formats
+docling>=1.0.0
+
+# numpy: Numerical computing for embeddings and clustering
+# Used for vector operations and similarity calculations
+numpy>=1.21.0
+
+# scikit-learn: Machine learning library for clustering algorithms
+# Used for K-means clustering and similarity metrics
+scikit-learn>=1.0.0
 
 # ===============================================================
 # Optional GUI (only used for advanced integrations later)
@@ -48,6 +65,17 @@ python-dotenv>=1.0.0
 #
 # After installation, create a .env file in the project root:
 # OPENAI_API_KEY=your_api_key_here
+# OPENAI_MODEL=gpt-4o-mini  # Optional: default model for analysis
 #
-# For Code Review functionality, you'll need an OpenAI API key
+# For Code Review and Document Merge functionality, you'll need an OpenAI API key
 # from: https://platform.openai.com/api-keys
+#
+# Document Merge supports these formats:
+# - PDF, Word (.docx, .doc)
+# - Text files (.txt, .md)
+# - Code files (.py, .js, .html, .css)
+#
+# Estimated costs (using gpt-4o-mini):
+# - Code Review: ~$0.002-0.005 per file
+# - Document Clustering: ~$0.01-0.05 per document batch
+# - Document Merging: ~$0.02-0.10 per merged document
