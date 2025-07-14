@@ -3,16 +3,19 @@
 AppFrame - Main application orchestrator for Wolfkit
 Phase 4 Optimized: Type hints, interface consistency, documentation improvements
 Refactored from 1306-line monolithic class to clean orchestrator
+Updated to include Security Analysis tab integration
 """
 from typing import Optional, Dict, Any, Union
 from ttkbootstrap import Frame, Notebook, Style
 from ttkbootstrap.constants import *
+import tkinter as tk
 
 # Import the individual tab implementations
 from ui.main_workflow_tab import MainWorkflowTab
 from ui.code_review_tab import CodeReviewTab
 from ui.document_merge_tab import DocumentMergeTab
 from ui.documentation_tab import DocumentationTab
+from ui.security_analysis_tab import SecurityAnalysisTab
 
 
 class AppFrame(Frame):
@@ -40,7 +43,7 @@ class AppFrame(Frame):
         
         # Global app state
         self.parent = parent
-        self.tabs: Dict[str, Union[MainWorkflowTab, CodeReviewTab, DocumentMergeTab, DocumentationTab]] = {}
+        self.tabs: Dict[str, Union[MainWorkflowTab, CodeReviewTab, DocumentMergeTab, DocumentationTab, SecurityAnalysisTab]] = {}
         
         # UI components (set during initialization)
         self.notebook: Optional[Notebook] = None
@@ -104,11 +107,15 @@ class AppFrame(Frame):
         self.tabs['merge'] = DocumentMergeTab(self.notebook)
         self.notebook.add(self.tabs['merge'], text="Document Merge")
         
-        # File Testing Tab (safe staging workflow - priority #3)
+        # Security Analysis Tab (vulnerability scanning - priority #3)
+        self.tabs['security'] = SecurityAnalysisTab(self.notebook)
+        self.notebook.add(self.tabs['security'], text="Security Analysis")
+        
+        # File Testing Tab (safe staging workflow - priority #4)
         self.tabs['main'] = MainWorkflowTab(self.notebook)
         self.notebook.add(self.tabs['main'], text="File Testing")
         
-        # Documentation Tab
+        # Documentation Tab (built-in help - priority #5)
         self.tabs['docs'] = DocumentationTab(self.notebook)
         self.notebook.add(self.tabs['docs'], text="Documentation")
     
@@ -157,12 +164,23 @@ class AppFrame(Frame):
             return self.tabs['merge'].get_merge_info()
         return None
     
+    def get_security_analysis_info(self) -> Optional[Dict[str, Any]]:
+        """
+        Get information about the security analysis tab state
+        
+        Returns:
+            Dictionary with analysis information or None if tab not available
+        """
+        if 'security' in self.tabs and hasattr(self.tabs['security'], 'get_analysis_info'):
+            return self.tabs['security'].get_analysis_info()
+        return None
+    
     def switch_to_tab(self, tab_name: str) -> bool:
         """
         Programmatically switch to a specific tab
         
         Args:
-            tab_name: Name of the tab ('review', 'merge', 'main', 'docs')
+            tab_name: Name of the tab ('review', 'merge', 'security', 'main', 'docs')
             
         Returns:
             True if tab switch was successful, False otherwise
@@ -207,6 +225,7 @@ class AppFrame(Frame):
             'main_workflow': self.get_main_workflow_info(),
             'code_review': self.get_code_review_info(),
             'document_merge': self.get_document_merge_info(),
+            'security_analysis': self.get_security_analysis_info(),
             'total_tabs': len(self.tabs),
             'available_tabs': list(self.tabs.keys())
         }
@@ -241,7 +260,7 @@ class AppFrame(Frame):
             for tab in self.tabs.values()
         )
     
-    def get_tab_instance(self, tab_name: str) -> Optional[Union[MainWorkflowTab, CodeReviewTab, DocumentMergeTab, DocumentationTab]]:
+    def get_tab_instance(self, tab_name: str) -> Optional[Union[MainWorkflowTab, CodeReviewTab, DocumentMergeTab, DocumentationTab, SecurityAnalysisTab]]:
         """
         Get direct reference to a tab instance
         

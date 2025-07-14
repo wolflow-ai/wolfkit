@@ -1,7 +1,7 @@
 # ui/documentation_tab.py
 """
 DocumentationTab - Built-in documentation and help
-Extracted from app_frame.py as part of Phase 2 refactoring
+Updated to include Security Analysis documentation and proper tab ordering
 """
 import tkinter as tk
 from ttkbootstrap import Frame, Label, Button, Text, Scrollbar
@@ -32,7 +32,7 @@ class DocumentationTab(BaseTab):
         nav_subtitle = Label(nav_frame, text="Complete guide to using Wolfkit's Try, Test, Trust workflow", font=("TkDefaultFont", 10))
         nav_subtitle.pack(anchor="w", pady=(0, 10))
 
-        # Quick links
+        # Quick links - Updated to include Security Analysis
         links_frame = Frame(nav_frame)
         links_frame.pack(fill=X, pady=(0, 10))
 
@@ -43,6 +43,9 @@ class DocumentationTab(BaseTab):
 
         self.jump_merge_btn = Button(links_frame, text="Document Merge", bootstyle="link", command=lambda: self._jump_to_section("merge"))
         self.jump_merge_btn.pack(side=LEFT, padx=5)
+
+        self.jump_security_btn = Button(links_frame, text="Security Analysis", bootstyle="link", command=lambda: self._jump_to_section("security"))
+        self.jump_security_btn.pack(side=LEFT, padx=5)
 
         self.jump_testing_btn = Button(links_frame, text="File Testing", bootstyle="link", command=lambda: self._jump_to_section("testing"))
         self.jump_testing_btn.pack(side=LEFT, padx=5)
@@ -69,6 +72,7 @@ class DocumentationTab(BaseTab):
         section_marks = {
             "review": "CODE_REVIEW_SECTION",
             "merge": "DOCUMENT_MERGE_SECTION",
+            "security": "SECURITY_ANALYSIS_SECTION",
             "testing": "FILE_TESTING_SECTION",
             "setup": "SETUP_SECTION"
         }
@@ -104,9 +108,9 @@ class DocumentationTab(BaseTab):
 
 Try, Test, Trust - Your AI-Powered Development Workflow
 
-Wolfkit helps developers safely test AI-generated code and intelligently organize documents using a powerful backup/rollback system with AI analysis.
+Wolfkit helps developers safely test AI-generated code and intelligently organize documents using a powerful backup/rollback system with AI analysis and comprehensive security scanning.
 
-VERSION: v1.3.0+ with Document Merge
+VERSION: v1.3.1+ with Security Analysis
 
 
 📋 TABLE OF CONTENTS
@@ -114,10 +118,11 @@ VERSION: v1.3.0+ with Document Merge
 
 1. CODE REVIEW - AI-Powered Analysis
 2. DOCUMENT MERGE - Intelligent Clustering
-3. FILE TESTING - Core File Staging
-4. SETUP GUIDE - Getting Started
-5. TROUBLESHOOTING - Common Issues
-6. TIPS & BEST PRACTICES
+3. SECURITY ANALYSIS - Vulnerability Scanning
+4. FILE TESTING - Core File Staging
+5. SETUP GUIDE - Getting Started
+6. TROUBLESHOOTING - Common Issues
+7. TIPS & BEST PRACTICES
 
 
 🤖 CODE REVIEW - AI-Powered Analysis  
@@ -152,7 +157,8 @@ WORKFLOW:
 5. TAKE ACTION
    • Fix any issues found
    • Re-analyze if needed
-   • Proceed to File Testing for staging
+   • Proceed to Security Analysis for vulnerability checking
+   • Finally move to File Testing for staging
 
 SUPPORTED FILE TYPES:
 • Python (.py)
@@ -167,7 +173,7 @@ COST ESTIMATE:
 • No subscription required!
 
 BEST PRACTICES:
-• Analyze files BEFORE staging them
+• Analyze files BEFORE security scanning
 • Review generated reports for insights
 • Use "Clear Selection" to reset between batches
 • Keep reports for project documentation
@@ -237,20 +243,108 @@ COST ESTIMATE:
 • ~$0.02-0.10 per merged document
 • Depends on document size and complexity
 
-EXAMPLE SCENARIO:
-Folder: "Research Papers" (15 documents)
-Result: 3 clusters found
-- Cluster 1: "Machine Learning" (6 docs, 82% similar)
-- Cluster 2: "Data Analysis" (5 docs, 78% similar)  
-- Cluster 3: "Statistics" (4 docs, 85% similar)
-Action: Merge each cluster into consolidated papers
-
 USE CASES:
 • Consolidate multiple resume versions
 • Merge related research papers
 • Organize meeting notes by topic
 • Combine code documentation
 • Clean up duplicate project files
+
+
+🛡️ SECURITY ANALYSIS - Vulnerability Scanning
+==============================================
+
+PURPOSE: Comprehensive security vulnerability detection for any codebase
+
+WORKFLOW:
+1. CONFIGURATION CHECK
+   • Click "Check Configuration" to verify analyzer setup
+   • Shows ✅ Ready when properly configured
+   • No API keys required - completely local analysis
+
+2. SELECT CODEBASE DIRECTORY
+   • Click "Select Codebase Directory"
+   • Choose root folder of your project
+   • Analyzer will scan all source files recursively
+
+3. CONFIGURE ANALYSIS OPTIONS
+   • Include dependencies: Scan dependency files
+   • Include config files: Check .env, settings, etc.
+   • Quick scan mode: Faster analysis with core patterns
+   • Minimum severity: Filter by CRITICAL/HIGH/MEDIUM/LOW
+
+4. RUN SECURITY ANALYSIS
+   • Click "🔍 Run Security Analysis"
+   • Analysis runs in background (non-blocking)
+   • Real-time progress updates in console
+   • Estimated completion time shown
+
+5. REVIEW SECURITY RESULTS
+   • Risk level displayed: CRITICAL/HIGH/MEDIUM/LOW
+   • Risk score: 0-100 scale with detailed breakdown
+   • Findings summary by severity
+   • Framework and database detection results
+
+6. EXPORT DETAILED REPORT
+   • Click "📄 Export Report" for full analysis
+   • Professional markdown report saved to /reports/
+   • Includes executive summary and technical details
+   • Click "📂 Open Report" to view in external application
+
+SECURITY CATEGORIES (OWASP-Aligned):
+• Broken Access Control (unprotected endpoints)
+• Cryptographic Failures (weak crypto, hardcoded secrets)
+• Injection Vulnerabilities (SQL injection, XSS, command injection)
+• Security Misconfiguration (debug mode, insecure CORS)
+• Framework Security (FastAPI, Flask, Django specific issues)
+
+VULNERABILITY DETECTION:
+• SQL Injection: Unsafe query construction patterns
+• Cross-Site Scripting (XSS): Unsafe HTML rendering
+• Hardcoded Secrets: API keys, passwords in source code
+• Weak Cryptography: MD5, SHA1, weak encryption algorithms
+• Insecure Authentication: Missing auth decorators, weak sessions
+• Configuration Issues: Debug mode, exposed info, insecure CORS
+
+FRAMEWORK-SPECIFIC ANALYSIS:
+• FastAPI: Missing CORS middleware, no rate limiting, unprotected endpoints
+• Flask: Missing SECRET_KEY, no CSRF protection, insecure sessions
+• Django: DEBUG=True in production, missing security middleware
+• Generic: Access control issues, injection patterns, crypto problems
+
+SUPPORTED FILE TYPES:
+• Source Code: .py, .js, .ts, .jsx, .tsx, .html, .css
+• Configuration: .env, .yml, .yaml, .json, .ini, .config
+• Documentation: .md, .txt
+• Container: Dockerfile, docker-compose.yml
+
+ANALYSIS FEATURES:
+• Zero Cost: Completely local analysis, no API calls
+• Fast Scanning: Optimized pattern matching engine
+• Confidence Levels: HIGH/MEDIUM/LOW confidence ratings
+• Risk Scoring: Weighted algorithm considering severity and category
+• Professional Reports: Executive summary + technical details
+• CWE References: Common Weakness Enumeration IDs for each finding
+
+COST ESTIMATE:
+• FREE - No API calls, completely local analysis
+• No network dependencies or rate limits
+• Privacy-focused: All code stays on your machine
+
+EXAMPLE WORKFLOW:
+1. Code Review → Fix syntax/logic issues
+2. Document Merge → Organize project documentation  
+3. Security Analysis → Identify vulnerabilities
+4. File Testing → Test secure, reviewed code
+5. Deploy with confidence
+
+BEST PRACTICES:
+• Run security analysis after code review
+• Focus on CRITICAL and HIGH severity findings first
+• Review MEDIUM confidence findings for false positives
+• Export reports for security documentation
+• Re-scan after fixing vulnerabilities
+• Integrate into CI/CD pipeline for continuous security
 
 
 📁 FILE TESTING - Core File Staging
@@ -305,12 +399,13 @@ Decision: Accept (keep new) or Revert (restore old)
 INITIAL SETUP:
 1. Ensure Python 3.8+ is installed
 2. Install dependencies: pip install -r requirements.txt
-3. Create .env file in project root
+3. Create .env file in project root (for AI features only)
 4. Add your OpenAI API key: OPENAI_API_KEY=sk-your-key-here
 
-OPENAI API KEY:
+OPENAI API KEY (Optional - Only for AI Features):
 • Get key from: https://platform.openai.com/api-keys
 • Required for Code Review and Document Merge features
+• Security Analysis works without API key (local only)
 • Estimated cost: $0.002-0.05 per analysis (very affordable!)
 
 OPTIONAL SETTINGS:
@@ -319,6 +414,7 @@ OPTIONAL SETTINGS:
 
 VERIFICATION:
 • Use "Check Configuration" buttons in Code Review and Document Merge tabs
+• Security Analysis "Check Configuration" verifies local analyzer
 • Should show ✅ Ready messages when properly configured
 
 
@@ -327,19 +423,24 @@ VERIFICATION:
 
 COMMON ISSUES:
 
-"No OpenAI API key found"
+"No OpenAI API key found" (Code Review/Document Merge)
 • Create .env file in project root
 • Add: OPENAI_API_KEY=your-actual-key
 • Restart Wolfkit
 
+"Security analyzer configuration error"
+• Restart Wolfkit to reload pattern engine
+• Check Python version (3.8+ required)
+• Verify file permissions in project directory
+
 "Analysis failed" / "Merge failed"
-• Check internet connection
+• Check internet connection (for AI features)
 • Verify API key is valid
 • Try smaller batch of files
 • Check OpenAI API usage limits
 
 "No project directory set"
-• Click "Set Project Directory" in Main Workflow
+• Click "Set Project Directory" in File Testing tab
 • Choose a valid folder with your project files
 
 "No files selected"
@@ -361,6 +462,11 @@ Large Document Processing
 • Break into smaller batches
 • Check available system memory
 
+Security Analysis Issues
+• Large codebases may take several minutes
+• Use Quick Scan mode for faster results
+• Check file encoding if analysis fails on specific files
+
 API Rate Limits
 • OpenAI has usage limits per minute/day
 • Wait a moment and retry
@@ -369,6 +475,13 @@ API Rate Limits
 
 💡 TIPS & BEST PRACTICES
 ========================
+
+OPTIMAL WORKFLOW:
+1. **🤖 Code Review**: Analyze LLM-generated code for issues before deployment
+2. **📄 Document Merge**: Organize and consolidate project documentation
+3. **🛡️ Security Analysis**: Scan for vulnerabilities and security issues
+4. **🚀 File Testing**: Stage and test secure, reviewed code safely
+5. **📖 Documentation**: Reference this guide for any questions
 
 FILE TESTING TIPS:
 • Always set project directory first
@@ -382,6 +495,13 @@ CODE REVIEW TIPS:
 • Review AI suggestions carefully
 • Use for learning - understand common patterns
 
+SECURITY ANALYSIS TIPS:
+• Run after code review to catch vulnerabilities
+• Focus on CRITICAL and HIGH severity findings first
+• Review MEDIUM confidence findings for false positives
+• Export reports for security documentation
+• Re-scan after fixing issues
+
 DOCUMENT MERGE TIPS:
 • Organize files in folders by topic first
 • Review cluster suggestions before merging
@@ -390,15 +510,17 @@ DOCUMENT MERGE TIPS:
 
 COST OPTIMIZATION:
 • Use gpt-4o-mini for most tasks (recommended)
+• Security Analysis is completely free (local only)
 • Batch similar files together
 • Review/edit files before AI analysis
 • Monitor usage on OpenAI dashboard
 
 WORKFLOW INTEGRATION:
-1. Code Review → Find issues
-2. Fix issues manually
-3. File Testing → Stage and test
-4. Document Merge → Organize outputs
+1. Code Review → Find syntax/logic issues
+2. Security Analysis → Identify vulnerabilities  
+3. Fix issues manually
+4. File Testing → Stage and test secure code
+5. Document Merge → Organize final outputs
 
 SAFETY PRACTICES:
 • Always backup projects before major changes
@@ -410,9 +532,9 @@ PROJECT ORGANIZATION:
 • Keep test files in separate folder
 • Use consistent naming conventions
 • Document your Wolfkit workflow in README
-• Share cluster reports with team
+• Share analysis reports with team
 
-Remember: Wolfkit enhances your workflow but doesn't replace good development practices. Always review AI suggestions and test thoroughly!
+Remember: Wolfkit enhances your workflow but doesn't replace good development practices. Always review AI suggestions, validate security findings, and test thoroughly!
 
 
 🐺 HAPPY CODING WITH WOLFKIT!
@@ -421,11 +543,11 @@ Remember: Wolfkit enhances your workflow but doesn't replace good development pr
 For more information, visit: https://github.com/your-username/wolfkit
 Report issues: https://github.com/your-username/wolfkit/issues
 
-"The best code review is the one that happens before you deploy." 🐺
+"The best code review is the one that happens before you deploy. The best security analysis is the one that happens before you stage." 🐺
 
 """
 
-        # FIXED: Load content first, then create section marks
+        # Load content first, then create section marks
         self.docs_text.config(state="normal")
         self.docs_text.delete("1.0", "end")
         self.docs_text.insert("1.0", docs_content)
@@ -440,13 +562,15 @@ Report issues: https://github.com/your-username/wolfkit/issues
                 self.docs_text.mark_set("CODE_REVIEW_SECTION", f"{line_num}.0")
             elif "📄 DOCUMENT MERGE - Intelligent Clustering" in line:
                 self.docs_text.mark_set("DOCUMENT_MERGE_SECTION", f"{line_num}.0")
+            elif "🛡️ SECURITY ANALYSIS - Vulnerability Scanning" in line:
+                self.docs_text.mark_set("SECURITY_ANALYSIS_SECTION", f"{line_num}.0")
             elif "📁 FILE TESTING - Core File Staging" in line:
                 self.docs_text.mark_set("FILE_TESTING_SECTION", f"{line_num}.0")
             elif "🚀 SETUP GUIDE" in line:
                 self.docs_text.mark_set("SETUP_SECTION", f"{line_num}.0")
         
         # Make marks persistent (survive text modifications)
-        for mark in ["CODE_REVIEW_SECTION", "DOCUMENT_MERGE_SECTION", "FILE_TESTING_SECTION", "SETUP_SECTION"]:
+        for mark in ["CODE_REVIEW_SECTION", "DOCUMENT_MERGE_SECTION", "SECURITY_ANALYSIS_SECTION", "FILE_TESTING_SECTION", "SETUP_SECTION"]:
             try:
                 self.docs_text.mark_gravity(mark, "left")
             except tk.TclError:

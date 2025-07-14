@@ -3,7 +3,7 @@
 # ===============================================================
 # This file lists all packages required for the Wolfkit application,
 # including GUI dependencies, utility functions, LLM integration,
-# and NEW document clustering & merge functionality.
+# document clustering & merge functionality, and NEW security analysis.
 # ===============================================================
 
 # ===============================================================
@@ -27,7 +27,7 @@ openai>=1.0.0
 python-dotenv>=1.0.0
 
 # ===============================================================
-# NEW: Document Processing & Clustering Dependencies
+# Document Processing & Clustering Dependencies
 # ===============================================================
 
 # docling: Advanced document processing (PDF, Word, etc.)
@@ -43,10 +43,23 @@ numpy>=1.21.0
 scikit-learn>=1.0.0
 
 # ===============================================================
-# Optional GUI (only used for advanced integrations later)
+# NEW: Security Analysis Dependencies
 # ===============================================================
-# pillow: Image handling for potential future icon previews
-# pillow>=10.0.0
+
+# pathlib: Path manipulation (built into Python 3.4+)
+# Used for file system operations in security scanner
+
+# re: Regular expressions (built into Python)
+# Used for pattern matching in security analysis
+
+# threading: Thread management (built into Python)
+# Used for background security analysis without blocking UI
+
+# dataclasses: Data structure definitions (built into Python 3.7+)
+# Used for SecurityFinding and SecurityReport structures
+
+# Note: Security analysis uses only Python standard library modules
+# for maximum compatibility and minimal dependencies!
 
 # ===============================================================
 # System Libraries (standard Python)
@@ -75,7 +88,13 @@ scikit-learn>=1.0.0
 # - Text files (.txt, .md)
 # - Code files (.py, .js, .html, .css)
 #
+# Security Analysis supports these formats:
+# - All source code files (.py, .js, .ts, .html, .css, .json)
+# - Configuration files (.env, .yml, .yaml, .config, .ini)
+# - Documentation files (.md, .txt)
+#
 # Estimated costs (using gpt-4o-mini):
 # - Code Review: ~$0.002-0.005 per file
 # - Document Clustering: ~$0.01-0.05 per document batch
 # - Document Merging: ~$0.02-0.10 per merged document
+# - Security Analysis: FREE (no API calls, local analysis only!)
