@@ -1,31 +1,41 @@
 # ui/widgets/progress_tracker.py
 """
 ProgressTracker Widget - Reusable progress bar and status component
-Extracted from app_frame.py as part of Phase 1 refactoring
+Phase 4 Optimized: Type hints, interface consistency, documentation improvements
 """
+from typing import Optional, Union
 from ttkbootstrap import Frame, Label, Progressbar
 from ttkbootstrap.constants import *
 
 
 class ProgressTracker(Frame):
-    """Reusable progress bar with status message management"""
+    """
+    Reusable progress bar with status message management
     
-    def __init__(self, parent, **kwargs):
+    Provides indeterminate progress indication with status messages.
+    Thread-safe for UI updates from background operations.
+    
+    Attributes:
+        is_active (bool): Whether progress is currently running
+        current_message (str): Current status message being displayed
+    """
+    
+    def __init__(self, parent, **kwargs) -> None:
         """
         Initialize ProgressTracker widget
         
         Args:
-            parent: Parent widget
-            **kwargs: Additional keyword arguments for Frame
+            parent: Parent widget (tkinter/ttkbootstrap widget)
+            **kwargs: Additional keyword arguments passed to Frame constructor
         """
         super().__init__(parent, **kwargs)
         
-        self.is_active = False
-        self.current_message = "Ready"
+        self.is_active: bool = False
+        self.current_message: str = "Ready"
         
         self._create_widgets()
     
-    def _create_widgets(self):
+    def _create_widgets(self) -> None:
         """Create the progress tracker UI elements"""
         # Status label
         self.status_label = Label(
@@ -43,12 +53,12 @@ class ProgressTracker(Frame):
         )
         # Don't pack initially - will be shown when needed
         
-    def start_progress(self, message="Processing..."):
+    def start_progress(self, message: str = "Processing...") -> None:
         """
         Start progress indication with a status message
         
         Args:
-            message: Status message to display
+            message: Status message to display during progress
         """
         self.current_message = message
         self.status_label.config(text=message)
@@ -58,12 +68,12 @@ class ProgressTracker(Frame):
             self.progress_bar.start()
             self.is_active = True
     
-    def stop_progress(self, final_message="Complete"):
+    def stop_progress(self, final_message: str = "Complete") -> None:
         """
         Stop progress indication and update status
         
         Args:
-            final_message: Final status message to display
+            final_message: Final status message to display after completion
         """
         if self.is_active:
             self.progress_bar.stop()
@@ -73,52 +83,75 @@ class ProgressTracker(Frame):
         self.current_message = final_message
         self.status_label.config(text=final_message)
     
-    def update_message(self, message):
+    def update_message(self, message: str) -> None:
         """
         Update status message without affecting progress state
         
         Args:
-            message: New status message
+            message: New status message to display
         """
         self.current_message = message
         self.status_label.config(text=message)
     
-    def set_progress_style(self, bootstyle):
+    def set_progress_style(self, bootstyle: str) -> None:
         """
         Change the progress bar style
         
         Args:
             bootstyle: New bootstrap style for progress bar
+                      (e.g., "info", "success", "warning", "danger")
         """
         self.progress_bar.config(bootstyle=bootstyle)
     
-    def is_running(self):
-        """Check if progress is currently active"""
+    def is_running(self) -> bool:
+        """
+        Check if progress is currently active
+        
+        Returns:
+            True if progress is running, False otherwise
+        """
         return self.is_active
     
-    def reset(self):
-        """Reset to initial state"""
+    def reset(self) -> None:
+        """Reset progress tracker to initial state"""
         self.stop_progress("Ready")
+    
+    def get_status(self) -> str:
+        """
+        Get the current status message
+        
+        Returns:
+            Current status message string
+        """
+        return self.current_message
 
 
 class StatusOnlyTracker(Frame):
-    """Simplified version with just status messages (no progress bar)"""
+    """
+    Simplified version with just status messages (no progress bar)
     
-    def __init__(self, parent, initial_message="Ready", **kwargs):
+    Lightweight alternative when progress indication isn't needed,
+    just status message updates.
+    
+    Attributes:
+        current_message (str): Current status message being displayed
+    """
+    
+    def __init__(self, parent, initial_message: str = "Ready", **kwargs) -> None:
         """
         Initialize StatusOnlyTracker widget
         
         Args:
-            parent: Parent widget
-            initial_message: Initial status message
-            **kwargs: Additional keyword arguments for Frame
+            parent: Parent widget (tkinter/ttkbootstrap widget)
+            initial_message: Initial status message to display
+            **kwargs: Additional keyword arguments passed to Frame constructor
         """
         super().__init__(parent, **kwargs)
         
-        self.current_message = initial_message
+        self.current_message: str = initial_message
         self._create_widgets()
     
-    def _create_widgets(self):
+    def _create_widgets(self) -> None:
         """Create the status tracker UI elements"""
         self.status_label = Label(
             self, 
@@ -127,20 +160,34 @@ class StatusOnlyTracker(Frame):
         )
         self.status_label.pack(fill=X)
     
-    def update(self, message):
+    def update(self, message: str) -> None:
         """
         Update the status message
         
         Args:
-            message: New status message
+            message: New status message to display
         """
         self.current_message = message
         self.status_label.config(text=message)
     
-    def clear(self):
-        """Clear the status message"""
+    def clear(self) -> None:
+        """Clear the status message (set to empty string)"""
         self.update("")
     
-    def reset(self, message="Ready"):
-        """Reset to initial or specified message"""
+    def reset(self, message: str = "Ready") -> None:
+        """
+        Reset to initial or specified message
+        
+        Args:
+            message: Message to reset to (default: "Ready")
+        """
         self.update(message)
+    
+    def get_status(self) -> str:
+        """
+        Get the current status message
+        
+        Returns:
+            Current status message string
+        """
+        return self.current_message

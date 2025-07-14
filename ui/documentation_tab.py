@@ -1,22 +1,34 @@
 # ui/documentation_tab.py
 """
 DocumentationTab - Built-in documentation and help
-Extracted from app_frame.py as part of Phase 2 refactoring
+Phase 4 Optimized: Fixed navigation, updated content for new tab structure
 """
 import tkinter as tk
+from typing import Dict, Optional
 from ttkbootstrap import Frame, Label, Button, Text, Scrollbar
 from ttkbootstrap.constants import *
 from ui.base_tab import BaseTab
 
 
 class DocumentationTab(BaseTab):
-    """Documentation tab with comprehensive instructions and navigation"""
+    """
+    Documentation tab with comprehensive instructions and navigation
     
-    def __init__(self, parent, **kwargs):
+    Provides complete user manual with quick navigation to specific sections
+    matching the current application tab structure and priorities.
+    
+    Attributes:
+        docs_text (Optional[Text]): Main documentation text widget
+        jump_buttons (Dict[str, Button]): Quick navigation buttons
+    """
+    
+    def __init__(self, parent, **kwargs) -> None:
         """Initialize DocumentationTab"""
+        self.docs_text: Optional[Text] = None
+        self.jump_buttons: Dict[str, Button] = {}
         super().__init__(parent, **kwargs)
     
-    def setup_tab(self):
+    def setup_tab(self) -> None:
         """Setup the documentation tab UI"""
         # Create scrollable text area for documentation
         docs_frame = Frame(self)
@@ -38,17 +50,17 @@ class DocumentationTab(BaseTab):
 
         Label(links_frame, text="Quick Links:", font=("TkDefaultFont", 10, "bold")).pack(side=LEFT)
 
-        self.jump_main_btn = Button(links_frame, text="Main Workflow", bootstyle="link", command=lambda: self._jump_to_section("main"))
-        self.jump_main_btn.pack(side=LEFT, padx=(10, 5))
+        self.jump_buttons['review'] = Button(links_frame, text="Code Review", bootstyle="link", command=lambda: self._jump_to_section("review"))
+        self.jump_buttons['review'].pack(side=LEFT, padx=(10, 5))
 
-        self.jump_review_btn = Button(links_frame, text="Code Review", bootstyle="link", command=lambda: self._jump_to_section("review"))
-        self.jump_review_btn.pack(side=LEFT, padx=5)
+        self.jump_buttons['merge'] = Button(links_frame, text="Document Merge", bootstyle="link", command=lambda: self._jump_to_section("merge"))
+        self.jump_buttons['merge'].pack(side=LEFT, padx=5)
 
-        self.jump_merge_btn = Button(links_frame, text="Document Merge", bootstyle="link", command=lambda: self._jump_to_section("merge"))
-        self.jump_merge_btn.pack(side=LEFT, padx=5)
+        self.jump_buttons['main'] = Button(links_frame, text="File Testing", bootstyle="link", command=lambda: self._jump_to_section("main"))
+        self.jump_buttons['main'].pack(side=LEFT, padx=5)
 
-        self.jump_setup_btn = Button(links_frame, text="Setup Guide", bootstyle="link", command=lambda: self._jump_to_section("setup"))
-        self.jump_setup_btn.pack(side=LEFT, padx=5)
+        self.jump_buttons['setup'] = Button(links_frame, text="Setup Guide", bootstyle="link", command=lambda: self._jump_to_section("setup"))
+        self.jump_buttons['setup'].pack(side=LEFT, padx=5)
 
         # Main documentation text area
         text_frame = Frame(docs_frame)
@@ -64,19 +76,27 @@ class DocumentationTab(BaseTab):
         # Load documentation content
         self._load_documentation()
 
-    def _jump_to_section(self, section):
-        """Jump to a specific section in the documentation"""
+    def _jump_to_section(self, section: str) -> None:
+        """
+        Jump to a specific section in the documentation
+        
+        Args:
+            section: Section identifier ('review', 'merge', 'main', 'setup')
+        """
         section_marks = {
-            "main": "MAIN_WORKFLOW_SECTION",
-            "review": "CODE_REVIEW_SECTION", 
-            "merge": "DOCUMENT_MERGE_SECTION",
+            "review": "CODE_REVIEW_SECTION",
+            "merge": "DOCUMENT_MERGE_SECTION", 
+            "main": "FILE_TESTING_SECTION",
             "setup": "SETUP_SECTION"
         }
         
-        if section in section_marks:
+        if section in section_marks and self.docs_text:
             mark = section_marks[section]
             try:
-                self.docs_text.see(mark)
+                # First, make sure the mark exists
+                mark_index = self.docs_text.index(mark)
+                self.docs_text.see(mark_index)
+                
                 # Highlight the section briefly
                 start_line = self.docs_text.index(f"{mark} linestart")
                 end_line = self.docs_text.index(f"{mark} linestart +3l")
@@ -84,9 +104,37 @@ class DocumentationTab(BaseTab):
                 self.docs_text.tag_config("highlight", background="yellow")
                 self.after(2000, lambda: self.docs_text.tag_delete("highlight"))
             except tk.TclError:
-                pass  # Mark not found
+                # If mark doesn't exist, try to find the section by text content
+                self._search_and_jump_to_section(section)
 
-    def _load_documentation(self):
+    def _search_and_jump_to_section(self, section: str) -> None:
+        """
+        Fallback method to search for section headers by text content
+        
+        Args:
+            section: Section identifier to search for
+        """
+        search_terms = {
+            "review": "🤖 CODE REVIEW - AI-Powered Analysis",
+            "merge": "📄 DOCUMENT MERGE - Intelligent Clustering",
+            "main": "📁 FILE TESTING - Core File Staging", 
+            "setup": "🚀 SETUP GUIDE"
+        }
+        
+        if section in search_terms and self.docs_text:
+            search_term = search_terms[section]
+            # Search for the text in the document
+            start_pos = "1.0"
+            pos = self.docs_text.search(search_term, start_pos, tk.END)
+            if pos:
+                self.docs_text.see(pos)
+                # Highlight the found section
+                end_pos = f"{pos} lineend"
+                self.docs_text.tag_add("highlight", pos, end_pos)
+                self.docs_text.tag_config("highlight", background="yellow")
+                self.after(2000, lambda: self.docs_text.tag_delete("highlight"))
+
+    def _load_documentation(self) -> None:
         """Load the complete documentation content"""
         docs_content = """🐺 WOLFKIT DOCUMENTATION
 ================================
@@ -102,9 +150,9 @@ VERSION: v1.3.0+ with Document Merge
 ===================
 
 1. SETUP GUIDE - Getting Started
-2. MAIN WORKFLOW - Core File Staging 
-3. CODE REVIEW - AI-Powered Analysis
-4. DOCUMENT MERGE - Intelligent Clustering
+2. CODE REVIEW - AI-Powered Analysis
+3. DOCUMENT MERGE - Intelligent Clustering
+4. FILE TESTING - Core File Staging 
 5. TROUBLESHOOTING - Common Issues
 6. TIPS & BEST PRACTICES
 
@@ -130,52 +178,6 @@ OPTIONAL SETTINGS:
 VERIFICATION:
 • Use "Check Configuration" buttons in Code Review and Document Merge tabs
 • Should show ✅ Ready messages when properly configured
-
-
-📁 MAIN WORKFLOW - Core File Staging
-====================================
-
-PURPOSE: Safely test AI-generated files in real projects with instant rollback
-
-WORKFLOW:
-1. SET PROJECT DIRECTORY
-   • Click "Set Project Directory"
-   • Choose your target project folder
-   • Wolfkit will work within this directory
-
-2. SELECT TEST FILES
-   • Click "Select File(s) to Test"
-   • Choose one or more files to test
-   • For each file, decide:
-     - REPLACE: Choose existing project file to replace
-     - ADD NEW: Choose folder to add file to
-
-3. CHOOSE LAUNCH TYPE
-   • Python App: Runs main.py in project directory
-   • Static Web Page: Opens index.html in browser
-
-4. RUN TEST
-   • Click "Run Test" to launch your project
-   • Test the new functionality
-   • Check console output for any issues
-
-5. DECISION TIME
-   • ACCEPT BATCH: Keep all test files, delete backups
-   • REVERT BATCH: Restore original files, remove test files
-
-SAFETY FEATURES:
-• Automatic backups before any file replacement
-• Batch operations (accept/revert multiple files at once)
-• Auto-detects project virtual environments
-• All operations logged to console
-
-EXAMPLE WORKFLOW:
-Project: my-web-app/
-Test file: new-component.js
-Action: Replace src/components/old-component.js
-Result: old-component.js backed up, new-component.js staged
-Test: Launch app, verify new component works
-Decision: Accept (keep new) or Revert (restore old)
 
 
 🤖 CODE REVIEW - AI-Powered Analysis  
@@ -210,7 +212,7 @@ WORKFLOW:
 5. TAKE ACTION
    • Fix any issues found
    • Re-analyze if needed
-   • Proceed to Main Workflow for staging
+   • Proceed to File Testing tab for safe staging
 
 SUPPORTED FILE TYPES:
 • Python (.py)
@@ -311,6 +313,52 @@ USE CASES:
 • Clean up duplicate project files
 
 
+📁 FILE TESTING - Core File Staging
+====================================
+
+PURPOSE: Safely test AI-generated files in real projects with instant rollback
+
+WORKFLOW:
+1. SET PROJECT DIRECTORY
+   • Click "Set Project Directory"
+   • Choose your target project folder
+   • Wolfkit will work within this directory
+
+2. SELECT TEST FILES
+   • Click "Select File(s) to Test"
+   • Choose one or more files to test
+   • For each file, decide:
+     - REPLACE: Choose existing project file to replace
+     - ADD NEW: Choose folder to add file to
+
+3. CHOOSE LAUNCH TYPE
+   • Python App: Runs main.py in project directory
+   • Static Web Page: Opens index.html in browser
+
+4. RUN TEST
+   • Click "Run Test" to launch your project
+   • Test the new functionality
+   • Check console output for any issues
+
+5. DECISION TIME
+   • ACCEPT BATCH: Keep all test files, delete backups
+   • REVERT BATCH: Restore original files, remove test files
+
+SAFETY FEATURES:
+• Automatic backups before any file replacement
+• Batch operations (accept/revert multiple files at once)
+• Auto-detects project virtual environments
+• All operations logged to console
+
+EXAMPLE WORKFLOW:
+Project: my-web-app/
+Test file: new-component.js
+Action: Replace src/components/old-component.js
+Result: old-component.js backed up, new-component.js staged
+Test: Launch app, verify new component works
+Decision: Accept (keep new) or Revert (restore old)
+
+
 🔧 TROUBLESHOOTING
 ==================
 
@@ -328,7 +376,7 @@ COMMON ISSUES:
 • Check OpenAI API usage limits
 
 "No project directory set"
-• Click "Set Project Directory" in Main Workflow
+• Click "Set Project Directory" in File Testing tab
 • Choose a valid folder with your project files
 
 "No files selected"
@@ -359,12 +407,6 @@ API Rate Limits
 💡 TIPS & BEST PRACTICES
 ========================
 
-MAIN WORKFLOW TIPS:
-• Always set project directory first
-• Test with one file before batch operations
-• Use descriptive commit messages in git before testing
-• Keep console output visible for feedback
-
 CODE REVIEW TIPS:
 • Analyze before staging - catch issues early
 • Save reports for documentation
@@ -377,6 +419,12 @@ DOCUMENT MERGE TIPS:
 • Edit merge filenames to be descriptive
 • Keep original files as backup
 
+FILE TESTING TIPS:
+• Always set project directory first
+• Test with one file before batch operations
+• Use descriptive commit messages in git before testing
+• Keep console output visible for feedback
+
 COST OPTIMIZATION:
 • Use gpt-4o-mini for most tasks (recommended)
 • Batch similar files together
@@ -385,9 +433,8 @@ COST OPTIMIZATION:
 
 WORKFLOW INTEGRATION:
 1. Code Review → Find issues
-2. Fix issues manually
-3. Main Workflow → Stage and test
-4. Document Merge → Organize outputs
+2. Document Merge → Organize outputs
+3. File Testing → Stage and test safely
 
 SAFETY PRACTICES:
 • Always backup projects before major changes
@@ -414,6 +461,9 @@ Report issues: https://github.com/your-username/wolfkit/issues
 
 """
 
+        if not self.docs_text:
+            return
+
         # Load content and create section marks for navigation
         self.docs_text.config(state="normal")
         self.docs_text.delete("1.0", "end")
@@ -422,13 +472,33 @@ Report issues: https://github.com/your-username/wolfkit/issues
         for i, line in enumerate(lines):
             if "🚀 SETUP GUIDE" in line:
                 self.docs_text.mark_set("SETUP_SECTION", f"{i+1}.0")
-            elif "📁 MAIN WORKFLOW" in line:
-                self.docs_text.mark_set("MAIN_WORKFLOW_SECTION", f"{i+1}.0")
             elif "🤖 CODE REVIEW" in line:
                 self.docs_text.mark_set("CODE_REVIEW_SECTION", f"{i+1}.0")
             elif "📄 DOCUMENT MERGE" in line:
                 self.docs_text.mark_set("DOCUMENT_MERGE_SECTION", f"{i+1}.0")
+            elif "📁 FILE TESTING" in line:
+                self.docs_text.mark_set("FILE_TESTING_SECTION", f"{i+1}.0")
             
             self.docs_text.insert("end", line + "\n")
         
         self.docs_text.config(state="disabled")
+
+    def refresh_content(self) -> None:
+        """Refresh the documentation content"""
+        self._load_documentation()
+    
+    def jump_to_section_programmatically(self, section: str) -> bool:
+        """
+        Programmatically jump to a section (useful for external calls)
+        
+        Args:
+            section: Section identifier
+            
+        Returns:
+            True if jump was successful, False otherwise
+        """
+        try:
+            self._jump_to_section(section)
+            return True
+        except Exception:
+            return False
