@@ -38,14 +38,14 @@ class DocumentationTab(BaseTab):
 
         Label(links_frame, text="Quick Links:", font=("TkDefaultFont", 10, "bold")).pack(side=LEFT)
 
-        self.jump_main_btn = Button(links_frame, text="Main Workflow", bootstyle="link", command=lambda: self._jump_to_section("main"))
-        self.jump_main_btn.pack(side=LEFT, padx=(10, 5))
-
         self.jump_review_btn = Button(links_frame, text="Code Review", bootstyle="link", command=lambda: self._jump_to_section("review"))
-        self.jump_review_btn.pack(side=LEFT, padx=5)
+        self.jump_review_btn.pack(side=LEFT, padx=(10, 5))
 
         self.jump_merge_btn = Button(links_frame, text="Document Merge", bootstyle="link", command=lambda: self._jump_to_section("merge"))
         self.jump_merge_btn.pack(side=LEFT, padx=5)
+
+        self.jump_testing_btn = Button(links_frame, text="File Testing", bootstyle="link", command=lambda: self._jump_to_section("testing"))
+        self.jump_testing_btn.pack(side=LEFT, padx=5)
 
         self.jump_setup_btn = Button(links_frame, text="Setup Guide", bootstyle="link", command=lambda: self._jump_to_section("setup"))
         self.jump_setup_btn.pack(side=LEFT, padx=5)
@@ -67,9 +67,9 @@ class DocumentationTab(BaseTab):
     def _jump_to_section(self, section):
         """Jump to a specific section in the documentation"""
         section_marks = {
-            "main": "MAIN_WORKFLOW_SECTION",
-            "review": "CODE_REVIEW_SECTION", 
+            "review": "CODE_REVIEW_SECTION",
             "merge": "DOCUMENT_MERGE_SECTION",
+            "testing": "FILE_TESTING_SECTION",
             "setup": "SETUP_SECTION"
         }
         
@@ -112,81 +112,12 @@ VERSION: v1.3.0+ with Document Merge
 📋 TABLE OF CONTENTS
 ===================
 
-1. SETUP GUIDE - Getting Started
-2. MAIN WORKFLOW - Core File Staging 
-3. CODE REVIEW - AI-Powered Analysis
-4. DOCUMENT MERGE - Intelligent Clustering
+1. CODE REVIEW - AI-Powered Analysis
+2. DOCUMENT MERGE - Intelligent Clustering
+3. FILE TESTING - Core File Staging
+4. SETUP GUIDE - Getting Started
 5. TROUBLESHOOTING - Common Issues
 6. TIPS & BEST PRACTICES
-
-
-🚀 SETUP GUIDE
-===============
-
-INITIAL SETUP:
-1. Ensure Python 3.8+ is installed
-2. Install dependencies: pip install -r requirements.txt
-3. Create .env file in project root
-4. Add your OpenAI API key: OPENAI_API_KEY=sk-your-key-here
-
-OPENAI API KEY:
-• Get key from: https://platform.openai.com/api-keys
-• Required for Code Review and Document Merge features
-• Estimated cost: $0.002-0.05 per analysis (very affordable!)
-
-OPTIONAL SETTINGS:
-• OPENAI_MODEL=gpt-4o-mini (default, recommended for cost)
-• OPENAI_MODEL=gpt-4o (premium quality, 15x more expensive)
-
-VERIFICATION:
-• Use "Check Configuration" buttons in Code Review and Document Merge tabs
-• Should show ✅ Ready messages when properly configured
-
-
-📁 MAIN WORKFLOW - Core File Staging
-====================================
-
-PURPOSE: Safely test AI-generated files in real projects with instant rollback
-
-WORKFLOW:
-1. SET PROJECT DIRECTORY
-   • Click "Set Project Directory"
-   • Choose your target project folder
-   • Wolfkit will work within this directory
-
-2. SELECT TEST FILES
-   • Click "Select File(s) to Test"
-   • Choose one or more files to test
-   • For each file, decide:
-     - REPLACE: Choose existing project file to replace
-     - ADD NEW: Choose folder to add file to
-
-3. CHOOSE LAUNCH TYPE
-   • Python App: Runs main.py in project directory
-   • Static Web Page: Opens index.html in browser
-
-4. RUN TEST
-   • Click "Run Test" to launch your project
-   • Test the new functionality
-   • Check console output for any issues
-
-5. DECISION TIME
-   • ACCEPT BATCH: Keep all test files, delete backups
-   • REVERT BATCH: Restore original files, remove test files
-
-SAFETY FEATURES:
-• Automatic backups before any file replacement
-• Batch operations (accept/revert multiple files at once)
-• Auto-detects project virtual environments
-• All operations logged to console
-
-EXAMPLE WORKFLOW:
-Project: my-web-app/
-Test file: new-component.js
-Action: Replace src/components/old-component.js
-Result: old-component.js backed up, new-component.js staged
-Test: Launch app, verify new component works
-Decision: Accept (keep new) or Revert (restore old)
 
 
 🤖 CODE REVIEW - AI-Powered Analysis  
@@ -221,7 +152,7 @@ WORKFLOW:
 5. TAKE ACTION
    • Fix any issues found
    • Re-analyze if needed
-   • Proceed to Main Workflow for staging
+   • Proceed to File Testing for staging
 
 SUPPORTED FILE TYPES:
 • Python (.py)
@@ -322,6 +253,75 @@ USE CASES:
 • Clean up duplicate project files
 
 
+📁 FILE TESTING - Core File Staging
+====================================
+
+PURPOSE: Safely test AI-generated files in real projects with instant rollback
+
+WORKFLOW:
+1. SET PROJECT DIRECTORY
+   • Click "Set Project Directory"
+   • Choose your target project folder
+   • Wolfkit will work within this directory
+
+2. SELECT TEST FILES
+   • Click "Select File(s) to Test"
+   • Choose one or more files to test
+   • For each file, decide:
+     - REPLACE: Choose existing project file to replace
+     - ADD NEW: Choose folder to add file to
+
+3. CHOOSE LAUNCH TYPE
+   • Python App: Runs main.py in project directory
+   • Static Web Page: Opens index.html in browser
+
+4. RUN TEST
+   • Click "Run Test" to launch your project
+   • Test the new functionality
+   • Check console output for any issues
+
+5. DECISION TIME
+   • ACCEPT BATCH: Keep all test files, delete backups
+   • REVERT BATCH: Restore original files, remove test files
+
+SAFETY FEATURES:
+• Automatic backups before any file replacement
+• Batch operations (accept/revert multiple files at once)
+• Auto-detects project virtual environments
+• All operations logged to console
+
+EXAMPLE WORKFLOW:
+Project: my-web-app/
+Test file: new-component.js
+Action: Replace src/components/old-component.js
+Result: old-component.js backed up, new-component.js staged
+Test: Launch app, verify new component works
+Decision: Accept (keep new) or Revert (restore old)
+
+
+🚀 SETUP GUIDE
+===============
+
+INITIAL SETUP:
+1. Ensure Python 3.8+ is installed
+2. Install dependencies: pip install -r requirements.txt
+3. Create .env file in project root
+4. Add your OpenAI API key: OPENAI_API_KEY=sk-your-key-here
+
+OPENAI API KEY:
+• Get key from: https://platform.openai.com/api-keys
+• Required for Code Review and Document Merge features
+• Estimated cost: $0.002-0.05 per analysis (very affordable!)
+
+OPTIONAL SETTINGS:
+• OPENAI_MODEL=gpt-4o-mini (default, recommended for cost)
+• OPENAI_MODEL=gpt-4o (premium quality, 15x more expensive)
+
+VERIFICATION:
+• Use "Check Configuration" buttons in Code Review and Document Merge tabs
+• Should show ✅ Ready messages when properly configured
+
+
 🔧 TROUBLESHOOTING
 ==================
 
@@ -370,7 +370,7 @@ API Rate Limits
 💡 TIPS & BEST PRACTICES
 ========================
 
-MAIN WORKFLOW TIPS:
+FILE TESTING TIPS:
 • Always set project directory first
 • Test with one file before batch operations
 • Use descriptive commit messages in git before testing
@@ -397,7 +397,7 @@ COST OPTIMIZATION:
 WORKFLOW INTEGRATION:
 1. Code Review → Find issues
 2. Fix issues manually
-3. Main Workflow → Stage and test
+3. File Testing → Stage and test
 4. Document Merge → Organize outputs
 
 SAFETY PRACTICES:
@@ -436,17 +436,17 @@ Report issues: https://github.com/your-username/wolfkit/issues
         
         for line_num, line in enumerate(lines, 1):
             # Search for section headers and create marks
-            if "🚀 SETUP GUIDE" in line:
-                self.docs_text.mark_set("SETUP_SECTION", f"{line_num}.0")
-            elif "📁 MAIN WORKFLOW - Core File Staging" in line:
-                self.docs_text.mark_set("MAIN_WORKFLOW_SECTION", f"{line_num}.0")
-            elif "🤖 CODE REVIEW - AI-Powered Analysis" in line:
+            if "🤖 CODE REVIEW - AI-Powered Analysis" in line:
                 self.docs_text.mark_set("CODE_REVIEW_SECTION", f"{line_num}.0")
             elif "📄 DOCUMENT MERGE - Intelligent Clustering" in line:
                 self.docs_text.mark_set("DOCUMENT_MERGE_SECTION", f"{line_num}.0")
+            elif "📁 FILE TESTING - Core File Staging" in line:
+                self.docs_text.mark_set("FILE_TESTING_SECTION", f"{line_num}.0")
+            elif "🚀 SETUP GUIDE" in line:
+                self.docs_text.mark_set("SETUP_SECTION", f"{line_num}.0")
         
         # Make marks persistent (survive text modifications)
-        for mark in ["SETUP_SECTION", "MAIN_WORKFLOW_SECTION", "CODE_REVIEW_SECTION", "DOCUMENT_MERGE_SECTION"]:
+        for mark in ["CODE_REVIEW_SECTION", "DOCUMENT_MERGE_SECTION", "FILE_TESTING_SECTION", "SETUP_SECTION"]:
             try:
                 self.docs_text.mark_gravity(mark, "left")
             except tk.TclError:
