@@ -2,17 +2,18 @@
 
 **Try, Test, Trust.**
 
-Wolfkit is a comprehensive AI-powered development tool that combines safe code testing with intelligent document organization and enterprise-grade security analysis. Test AI-generated code in real projects with automatic backups, analyze code quality before deployment, scan for vulnerabilities with AI-powered insights, and seamlessly cluster related documents using semantic AI.
+Wolfkit is a comprehensive AI-powered development tool that combines safe code testing with intelligent document organization and enterprise-grade security analysis. Test AI-generated code in real projects with automatic backups, analyze code quality before deployment with **revolutionary multi-file context awareness**, scan for vulnerabilities with AI-powered insights, and seamlessly cluster related documents using semantic AI.
 
-**Current Version:** `v1.1.1` — Now with **Security Analysis & Enhanced Architecture**
+**Current Version:** `v1.4.0` — Now with **Multi-File Code Analysis & Enhanced Architecture**
 
 ---
 
 ## Table of Contents
 - [What It Does](#-what-it-does)
-- [New in v1.1.1](#-new-in-v111-security-analysis-revolution)
+- [🆕 New in v1.4.0](#-new-in-v140-multi-file-analysis)
 - [Quickstart](#-quickstart)
 - [AI Setup](#-ai-features-setup)
+- [Multi-File Analysis](#-multi-file-analysis-features)
 - [Security Features](#-security-analysis-features)
 - [Why Use Wolfkit?](#-why-use-wolfkit)
 - [Complete Feature Set](#-complete-feature-set)
@@ -30,10 +31,12 @@ Wolfkit is a comprehensive AI-powered development tool that combines safe code t
 
 ## ⚡ What It Does
 
-### 🤖 **AI Code Review** 🔐
-- Analyze LLM-generated code for syntax, logic, and import issues
-- Multi-file batch support with markdown report generation
-- Budget-conscious: gpt-4o-mini (~$0.002–0.005 per file)
+### 🤖 **AI Code Review** 🔐 **NEW: Multi-File Analysis**
+- **Three Analysis Modes**: Single file, Module analysis, and Project-level architectural review
+- **Smart Dependency Detection**: Identifies missing imports available in other files
+- **False Positive Reduction**: Understands project structure to avoid incorrect flagging
+- **Framework Intelligence**: Auto-detects FastAPI, Flask, Django, React, Vue, Express
+- Professional markdown reports with comprehensive project insights
 
 ### 📄 **Document Clustering & Merge** 🔐
 - Organize mixed-format documents using semantic AI
@@ -59,16 +62,56 @@ Wolfkit is a comprehensive AI-powered development tool that combines safe code t
 
 ---
 
-## 🌟 New in v1.1.1: Security Analysis Revolution
+## 🆕 New in v1.4.0: Multi-File Analysis 
 
-**Enterprise-grade security scanning is here!**
+### 🎯 **Problem Solved**
+**Before**: *"Missing import error for `helper_function` - but it's defined in `utils.py`!"*
+**After**: *"✅ `helper_function` available in utils.py - suggested import: `from utils import helper_function`"*
 
-- **Hybrid Architecture**: Local vulnerability detection + AI-powered insights
-- **OWASP Coverage**: Comprehensive Top 10 vulnerability detection
-- **Framework Intelligence**: Tailored analysis for FastAPI, Flask, Django, Express
-- **Professional Reports**: Executive summaries with technical details and CWE references
-- **Privacy-First**: Code analysis stays local, only insights sent for report generation
-- **Seamless Integration**: Perfect fit into existing BaseTab architecture
+### 🚀 **Three Analysis Modes**
+
+#### **1. Single File Analysis** (Original)
+- Traditional per-file analysis
+- Fast and focused
+- Perfect for quick reviews
+
+#### **2. Module Analysis** (NEW)
+- **Cross-file context awareness**
+- **Dependency resolution across files**
+- **Missing import detection with suggestions**
+- **Interface consistency checking**
+- **Module cohesion analysis**
+
+#### **3. Project Analysis** (NEW)
+- **Full architectural review**
+- **Dependency graph analysis**
+- **Framework compliance checking**
+- **Scalability assessment**
+- **Project-wide pattern detection**
+
+### 🧠 **Smart Context Building**
+- **Framework Detection**: FastAPI, Flask, Django, React, Vue, Express, Next.js
+- **Dependency Mapping**: Complete import/export analysis with AST parsing
+- **Global Symbol Resolution**: Tracks functions/classes across entire codebase
+- **Cross-Reference Validation**: Identifies missing imports available in other files
+- **Architecture Analysis**: Circular dependency detection and coupling assessment
+
+### 📊 **Enhanced Reporting**
+```markdown
+# Multi-File Analysis Report
+**Framework:** FastAPI
+**Files Analyzed:** 12
+**Cross-file Dependencies:** 23
+**Missing Imports Found:** 3
+
+## Cross-File Issues Found:
+- ❌ main.py: 'helper_function' available in utils.py but not imported
+- ⚠️ config.py: Circular dependency detected with database.py
+- ✅ Strong module cohesion detected in auth/ directory
+
+## Integration Summary:
+Files work well together with minor import issues easily resolved.
+```
 
 ---
 
@@ -110,7 +153,7 @@ start "" pythonw main.py > log.txt 2>&1
 ## 🤖 AI Features Setup
 
 ### 🔑 Required For:
-- **Code Review tab** 🔐
+- **Code Review tab** 🔐 (All analysis modes)
 - **Document Merge tab** 🔐
 - **Security Analysis tab** 🔐
 
@@ -123,13 +166,56 @@ OPENAI_MODEL=gpt-4o-mini
 ```
 
 ### 💰 Model Cost Estimates
-| Model | Per File | Best For |
-|-------|----------|----------|
-| `gpt-4o-mini` | ~$0.002–0.005 | **Recommended**: Great quality & speed |
-| `gpt-4.1-nano` | ~$0.001–0.003 | Ultra-budget option |
-| `gpt-4o` | ~$0.03–0.07 | Premium results |
+| Model | Per File | Per Module (5 files) | Per Project (50 files) | Best For |
+|-------|----------|---------------------|------------------------|----------|
+| `gpt-4o-mini` | ~$0.002–0.005 | ~$0.01–0.02 | ~$0.05–0.15 | **Recommended**: Great quality & speed |
+| `gpt-4.1-nano` | ~$0.001–0.003 | ~$0.005–0.015 | ~$0.03–0.10 | Ultra-budget option |
+| `gpt-4o` | ~$0.03–0.07 | ~$0.15–0.30 | ~$0.75–2.00 | Premium results |
 
-> **Privacy Note**: Documents and code are analyzed locally. Only structured summaries and prompts are sent to OpenAI for insights and report generation.
+> **Privacy Note**: Only structured analysis prompts and project context are sent to OpenAI. Your actual code stays local during analysis.
+
+---
+
+## 🔬 Multi-File Analysis Features
+
+### 🎯 **Smart Dependency Detection**
+| Feature | Description | Example |
+|---------|-------------|---------|
+| **Missing Import Detection** | Finds undefined symbols available in other files | `helper_function` in main.py available in utils.py |
+| **Cross-file Validation** | Verifies function calls work across files | Validates API calls match endpoint definitions |
+| **Framework Compliance** | Checks adherence to detected framework patterns | FastAPI route decorators, Flask app structure |
+| **Circular Dependency Detection** | Identifies problematic import cycles | module_a imports module_b which imports module_a |
+
+### 🧠 **Context-Aware Analysis**
+```python
+# Before: Single file analysis misses context
+# main.py - ERROR: helper_function not defined
+from config import DATABASE_URL
+result = helper_function("data")  # ❌ Flagged as undefined
+
+# After: Module analysis provides context
+# ✅ Analysis Context:
+# - helper_function available in utils.py
+# - Suggested import: from utils import helper_function
+# - Framework: FastAPI detected
+# - Database: PostgreSQL detected from imports
+```
+
+### 📊 **Project Architecture Analysis**
+- **Dependency Graph**: Visual representation of file relationships
+- **Framework Detection**: Auto-identify tech stack and best practices
+- **Scalability Assessment**: Identify potential architectural bottlenecks
+- **Code Quality Metrics**: Consistency analysis across entire project
+- **Security Integration**: Cross-reference with security analysis findings
+
+### 🔧 **Analysis Workflow**
+1. **Select Analysis Mode**: Single/Module/Project
+2. **Smart File Selection**: Context-aware file picker
+3. **Framework Detection**: Automatic tech stack identification
+4. **Dependency Mapping**: Complete import/export analysis
+5. **Context Building**: Cross-file relationship mapping
+6. **AI Analysis**: Enhanced prompts with full context
+7. **Professional Reporting**: Comprehensive insights and recommendations
 
 ---
 
@@ -151,12 +237,6 @@ OPENAI_MODEL=gpt-4o-mini
 - **Express**: Insecure middleware, missing helmet configuration
 - **Generic**: Cross-platform security patterns and best practices
 
-### 📊 Hybrid Analysis Approach
-1. **Local Pattern Detection**: Vulnerability scanning happens on your machine
-2. **Privacy Protection**: Your actual code never leaves your computer
-3. **AI-Powered Insights**: Structured findings sent to OpenAI for professional reporting
-4. **Professional Output**: Executive summaries with technical details and risk scoring
-
 ### 📄 Professional Reporting
 - **Executive Summary**: Management-focused risk assessment with business impact
 - **Technical Details**: Developer-focused findings with code snippets and CWE references
@@ -169,14 +249,15 @@ OPENAI_MODEL=gpt-4o-mini
 
 Modern developers deal with:
 - **AI-generated code** with subtle bugs and security vulnerabilities
+- **Multi-file complexity** where issues span across modules
 - **Security risks** hidden in large codebases
 - **Document chaos** with duplicates and scattered content
 - **Risk anxiety** when deploying untested code changes
 
 **Wolfkit = Confidence in your development workflow.**
 
-### 🎯 The Five-Phase Approach:
-1. **🤖 Analyze** → Review code quality and logic before staging
+### 🎯 The Enhanced Five-Phase Approach:
+1. **🤖 Analyze** → Multi-file code review with cross-file context awareness
 2. **📄 Organize** → Cluster and merge related documents intelligently  
 3. **🛡️ Secure** → Scan for vulnerabilities with professional insights
 4. **🚀 Test** → Stage secure, reviewed code with automatic backups
@@ -186,12 +267,13 @@ Modern developers deal with:
 
 ## 🛠 Complete Feature Set
 
-### 🤖 Code Review Tab 🔐
-- Select files for AI analysis (independent of staging)
-- One-click batch analysis with progress tracking
-- Professional markdown reports saved to `/reports/`
-- Configuration checking and status updates
-- Cross-platform report opening in default editor
+### 🤖 Code Review Tab 🔐 **ENHANCED**
+- **Three Analysis Modes**: Single file, Module, and Project analysis
+- **Smart Context Building**: Framework detection and dependency mapping
+- **Cross-file Validation**: Missing import detection and resolution
+- **Professional Reports**: Enhanced markdown reports with project insights
+- **Configuration Checking**: Multi-file capability verification
+- **Progress Tracking**: Real-time analysis feedback
 
 ### 📄 Document Merge Tab 🔐
 - Select folder for document analysis and clustering
@@ -222,7 +304,7 @@ Modern developers deal with:
 - Quick navigation to specific features with visual feedback
 - Step-by-step workflows for all major operations
 - Troubleshooting guide and best practices
-- Updated with Security Analysis documentation
+- Updated with Multi-File Analysis documentation
 
 ---
 
@@ -231,25 +313,29 @@ Modern developers deal with:
 > **Use only what you need. Skip what you don't.**
 
 ### **For Code Development:**
-1. **🤖 Code Review**: Analyze LLM-generated code for syntax and logic issues
+1. **🤖 Code Review**: 
+   - **Single File**: Quick individual file analysis
+   - **Module**: Cross-file analysis with context awareness
+   - **Project**: Full architectural review and dependency analysis
 2. **📄 Document Merge**: Organize related project documentation  
 3. **🛡️ Security Analysis**: Scan for vulnerabilities and get professional insights
 4. **🚀 File Testing**: Stage secure, reviewed code with automatic backups
 5. **✅ Trust**: Accept changes confidently or revert instantly
 
-### **For Document Organization:**
-1. **📁 Select Document Folder** with mixed/duplicate files
-2. **🔍 Analyze Documents** → AI finds semantic clusters
-3. **👀 Review Clusters** → See similarity scores and merge previews
-4. **✏️ Edit Merge Names** → Customize output filenames
-5. **🔄 Merge Selected** → Choose clusters to consolidate
+### **For Multi-File Analysis:**
+1. **📂 Select Analysis Mode** → Choose Single/Module/Project analysis
+2. **📁 Smart Selection** → Context-aware file or project selection
+3. **🔍 Framework Detection** → Automatic tech stack identification
+4. **🧠 Context Building** → Cross-file dependency mapping
+5. **🤖 AI Analysis** → Enhanced analysis with full project context
+6. **📊 Professional Reporting** → Comprehensive insights and recommendations
 
-### **For Security Auditing:**
-1. **📂 Select Codebase** → Choose project directory for analysis
-2. **⚙️ Configure Scan** → Set options and severity filters
-3. **🔍 Run Analysis** → Local vulnerability detection + AI insights
-4. **📊 Review Results** → Professional risk scoring and detailed findings
-5. **📄 Export Report** → Executive summaries for compliance documentation
+### **For Project Architecture Review:**
+1. **🏗️ Select Project Directory** → Choose entire project for analysis
+2. **⚙️ Configure Analysis** → Set options and framework preferences
+3. **🔍 Run Analysis** → Multi-file architectural review
+4. **📊 Review Results** → Dependency graphs and scalability assessment
+5. **📄 Export Report** → Professional documentation for team review
 
 ---
 
@@ -257,68 +343,90 @@ Modern developers deal with:
 
 ```
 wolfkit/
-├── main.py                    # Application entry point
-├── controller.py              # Core business logic & workflow coordination
-├── code_reviewer.py           # 🔐 AI-powered code analysis
-├── document_merger.py         # 🔐 Document clustering and merging
-├── security_analyzer.py      # 🔐 Local security vulnerability scanning
-├── security_patterns.py      # Security pattern detection engine
-├── security_reporter.py      # 🔐 Professional AI-powered report generation
+├── main.py                      # Application entry point
+├── controller.py                # Core business logic & workflow coordination
+├── code_reviewer.py            # 🔐 Enhanced multi-file AI analysis orchestrator
+├── dependency_mapper.py        # 🆕 Import/export analysis and dependency graphs
+├── code_context_analyzer.py    # 🆕 Project structure analysis and context building
+├── multi_file_analyzer.py      # 🆕 Multi-file analysis coordination
+├── document_merger.py          # 🔐 Document clustering and merging
+├── security_analyzer.py        # 🔐 Local security vulnerability scanning
+├── security_patterns.py        # Security pattern detection engine
+├── security_reporter.py        # 🔐 Professional AI-powered report generation
 ├── ui/
-│   ├── app_frame.py          # Main orchestrator with tab management
-│   ├── base_tab.py           # Common tab functionality and utilities
-│   ├── code_review_tab.py    # 🔐 AI analysis interface
-│   ├── document_merge_tab.py # 🔐 Document clustering interface
+│   ├── app_frame.py            # Main orchestrator with tab management
+│   ├── base_tab.py             # Common tab functionality and utilities
+│   ├── code_review_tab.py      # 🔐 Enhanced multi-file analysis interface
+│   ├── document_merge_tab.py   # 🔐 Document clustering interface
 │   ├── security_analysis_tab.py # 🔐 Security scanning interface
-│   ├── main_workflow_tab.py  # File staging and testing interface
-│   ├── documentation_tab.py  # Built-in help system
+│   ├── main_workflow_tab.py    # File staging and testing interface
+│   ├── documentation_tab.py    # Built-in help system
 │   └── widgets/
-│       ├── cluster_card.py   # Custom cluster visualization
-│       ├── console_output.py # Reusable console widget
+│       ├── cluster_card.py     # Custom cluster visualization
+│       ├── console_output.py   # Reusable console widget
 │       └── progress_tracker.py # Progress indication
 ├── assets/
-├── backups/                  # Auto-generated file backups
-├── reports/                  # AI analysis & security reports
+├── backups/                    # Auto-generated file backups
+├── reports/                    # AI analysis & security reports
+├── test_multi_file_analysis.py # 🆕 Comprehensive test suite
 └── requirements.txt
 ```
 
-### **Key Design Principles:**
-- **Clean Architecture**: BaseTab inheritance with single responsibility
-- **Privacy-First**: Local analysis with selective AI integration
-- **Type Safety**: Comprehensive type hints throughout
-- **Modular Design**: Each feature in its own focused module
-- **Professional Output**: Enterprise-grade reporting and documentation
 
 ---
 
 ## 📄 Sample Reports
 
-### **Code Review Report**
+### **Enhanced Multi-File Analysis Report**
 ```markdown
-# Wolfkit AI Code Review
-**Generated:** 2025-07-14 15:45:12
-**Files Analyzed:** 3
-**Model Used:** gpt-4o-mini
+# Wolfkit AI Code Review (Module Analysis)
+**Generated:** 2025-07-17 14:30:22
+**Analysis Type:** Module
+**Framework:** FastAPI
+**Files Analyzed:** 4
+
+## Analysis Summary
+- **Target Files:** 4
+- **External Dependencies:** 8
+- **Missing Imports Found:** 2
+- **Cross-file Dependencies:** 6
+
+## Target Files
+- `main.py`
+- `utils.py`
+- `config.py`
+- `models.py`
 
 ---
 
-### Analysis of `auth.py`
-**File Type:** Python
-**Syntax Check:** ❌ Issues found
+### Module Analysis Results
 
-**Issues Found:**
-- ❌ [Critical Issue]: Missing import for `bcrypt` module
-- ⚠️ [Warning]: Hardcoded salt value detected
-- ✅ [Good Practice Found]: Proper password validation logic
+**Overall Assessment:** Module shows good structure with minor import issues easily resolved.
 
-**Summary:**
-Add bcrypt import and move salt to environment variables.
+**Cross-File Issues Found:**
+- ❌ main.py: 'helper_function' available in utils.py but not imported
+  - Suggested fix: `from utils import helper_function`
+- ❌ models.py: 'DATABASE_URL' used but not imported from config.py
+  - Suggested fix: `from config import DATABASE_URL`
+- ✅ Strong FastAPI patterns detected with proper route organization
+
+**Integration Summary:**
+Files work well together as a cohesive module. The FastAPI application structure follows best practices with clear separation of concerns between routing, utilities, and configuration.
+
+**Recommendations:**
+1. Add missing imports identified above
+2. Consider creating an `__init__.py` file for proper package structure
+3. The database connection logic could be centralized in models.py
+
+---
+
+*This module analysis was generated by Wolfkit's enhanced code review system with cross-file context awareness.*
 ```
 
 ### **Security Analysis Report**
 ```markdown
 # 🛡️ Wolfkit Security Analysis Report
-**Generated:** 2025-07-14 15:45:12
+**Generated:** 2025-07-17 14:30:22
 **Codebase:** `my-fastapi-project`
 **Framework:** FastAPI
 **Files Scanned:** 47
@@ -351,15 +459,17 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 - ✅ **Document content** - analyzed locally for clustering
 - ✅ **Security vulnerability detection** - pattern matching on your machine
 - ✅ **File backups** - stored in local `/backups/` directory
+- ✅ **Dependency analysis** - AST parsing happens locally
 
 ### **What Uses AI (OpenAI API):**
-- 🔐 **Code analysis prompts** - structured questions about code quality
+- 🔐 **Code analysis prompts** - structured questions with project context
 - 🔐 **Document clustering** - content summaries for semantic grouping
 - 🔐 **Security report generation** - findings summaries for professional insights
 - 🔐 **Report formatting** - structured data for executive summaries
 
 ### **Privacy Guarantees:**
-- **No Raw Code Transmitted**: Only structured prompts and findings summaries
+- **No Raw Code Transmitted**: Only structured prompts and project context
+- **Enhanced Context Privacy**: Cross-file relationships analyzed locally
 - **OpenAI Data Policy**: No data retention per OpenAI API terms of service
 - **Automatic Backups**: Every file replacement backed up until you accept changes
 - **Reversible Operations**: All merges and staging operations can be undone
@@ -369,99 +479,110 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 
 ## 🚀 Version History & Roadmap
 
-### ✅ v1.1.1 – Security Analysis Revolution
+### ✅ v1.4.0 – Multi-File Analysis
+- **Revolutionary Enhancement**: Cross-file context awareness for code review
+- **Three Analysis Modes**: Single file, Module, and Project-level analysis
+- **Smart Dependency Detection**: Missing import identification with suggestions
+- **Framework Intelligence**: Auto-detection of FastAPI, Flask, Django, React, etc.
+- **Professional Architecture**: 4 focused modules under 400 lines each
+- **Enhanced Reporting**: Context-aware insights and recommendations
+- **Performance Optimized**: AST parsing with intelligent caching
+- **Backward Compatible**: All existing functionality preserved
+
+### ✅ v1.3.2 – Security Analysis Revolution
 - **Comprehensive Security Analysis**: OWASP Top 10 vulnerability detection
 - **Hybrid Architecture**: Local scanning + AI-powered professional reporting
 - **Framework Intelligence**: FastAPI, Flask, Django specific security checks
 - **Professional Reporting**: Executive summaries with technical details
 - **Enhanced Documentation**: Complete Security Analysis user guide
-- **Improved Launch**: Better Windows batch launcher with console/silent modes
 
-### ✅ v1.1.0 – Enhanced Features
-- **Launch Type Selection**: Python App or Static Web Page options
-- **Destination Folder Support**: Choose where to add new files
-- **Project Structure Management**: Improved file staging workflow
-- **Enhanced README**: Comprehensive feature documentation
+### ✅ v1.3.1 – Enhanced Features & Architecture
+- **85% Code Reduction**: Main orchestrator from 1,306 → 200 lines
+- **Priority-Based Tab Ordering**: Logical workflow optimization
+- **Clear Interface Naming**: Improved user experience
+- **Working Navigation**: Fixed documentation with visual feedback
 
-### ✅ v1.0.0 – Foundation
-- **Core File Testing**: Snapshotting, staging, backup, and rollback
-- **Console Output**: Simple feedback and status tracking
-- **Initial Release**: Basic workflow for safe code testing
+### ✅ v1.3.0 – Document Clustering & Merge
+- **Document Merge Tab**: AI-powered semantic document organization
+- **Universal Document Support**: PDF, Word, Text, Markdown, Code files
+- **Smart Clustering**: AI embeddings for content similarity
+- **Visual Interface**: Interactive cluster cards with previews
 
-### 🔮 Coming Soon (v1.2.0+)
-- [ ] **Custom Security Patterns**: User-defined vulnerability rules
-- [ ] **Dependency CVE Scanning**: Integration with known vulnerability databases
-- [ ] **CI/CD Integration**: Hooks for automated security scanning
-- [ ] **Enhanced Cluster Visualization**: Security risk indicators for documents
-- [ ] **Team Collaboration**: Shared security findings and reports
+### ✅ v1.2.0 – AI Code Review Foundation
+- **AI Code Review Tab**: Pre-flight analysis of LLM-generated code
+- **Multi-File Analysis**: Review entire batches with progress tracking
+- **Professional Reports**: Markdown analysis reports
+- **Budget-Friendly**: gpt-4o-mini integration
 
-### 🌟 Advanced Features (v2.0+)
-- [ ] **Real-time Security Monitoring**: Live analysis during development
-- [ ] **IDE Integration**: VS Code extension with security feedback
-- [ ] **Enterprise Features**: SSO, team management, compliance frameworks
-- [ ] **API Integration**: Security orchestration platform connectivity
 
 ---
 
 ## 💰 Cost Transparency
 
 ### 🔑 API Requirements Summary
-| Feature | API Required | Typical Cost |
-|---------|-------------|--------------|
-| 🤖 Code Review | ✅ OpenAI | ~$0.002-0.005/file |
-| 📄 Document Merge | ✅ OpenAI | ~$0.01-0.05/batch |
-| 🛡️ Security Analysis | ✅ OpenAI | ~$0.01-0.03/scan |
-| 🚀 File Testing | ❌ None | **FREE** |
-| 📚 Documentation | ❌ None | **FREE** |
+| Feature | API Required | Typical Cost | Notes |
+|---------|-------------|--------------|-------|
+| 🤖 Code Review (Single) | ✅ OpenAI | ~$0.002-0.005/file | Traditional analysis |
+| 🤖 Code Review (Module) | ✅ OpenAI | ~$0.01-0.02/module | 🆕 Cross-file analysis |
+| 🤖 Code Review (Project) | ✅ OpenAI | ~$0.05-0.15/project | 🆕 Architectural review |
+| 📄 Document Merge | ✅ OpenAI | ~$0.01-0.05/batch | Semantic clustering |
+| 🛡️ Security Analysis | ✅ OpenAI | ~$0.01-0.03/scan | Professional reporting |
+| 🚀 File Testing | ❌ None | **FREE** | Local file operations |
+| 📚 Documentation | ❌ None | **FREE** | Built-in help system |
 
 ### 📊 Monthly Budget Examples (using gpt-4o-mini):
-- **Light User**: 20 code reviews + 5 document merges + 10 security scans = ~$3-5/month
-- **Active Developer**: 100 code reviews + 20 document merges + 30 security scans = ~$10-15/month  
-- **Heavy User**: 500 code reviews + 100 document merges + 100 security scans = ~$40-60/month
+- **Light User**: 10 single + 5 module + 2 project reviews = ~$3-8/month
+- **Active Developer**: 50 single + 20 module + 10 project reviews = ~$15-30/month  
+- **Heavy User**: 200 single + 100 module + 50 project reviews = ~$50-100/month
 
 ### ✅ No Hidden Costs:
 - **No subscription fees** - pay only for AI usage
 - **No per-user licensing** - single purchase, unlimited local use  
 - **No data storage charges** - everything stored locally
 - **Transparent billing** - direct OpenAI API usage tracking
+- **Enhanced value** - Multi-file analysis provides significantly more insight per dollar
 
 ---
 
 ## 🌍 Real-World Use Cases
 
 ### **For Developers:**
-- **Safe LLM Testing**: Review ChatGPT/Claude-generated code before deployment
-- **Security-First Development**: Scan for vulnerabilities during development
-- **Documentation Organization**: Merge scattered API docs and technical notes
-- **Code Quality Assurance**: Catch syntax and logic errors early
+- **Multi-Module Projects**: Analyze entire Flask/FastAPI applications with cross-file context
+- **AI Code Integration**: Review ChatGPT/Claude-generated code across multiple files
+- **Refactoring Projects**: Understand dependencies before major code restructuring
+- **Framework Migration**: Assess compatibility when moving between frameworks
+- **Code Quality Assurance**: Catch cross-file issues that single-file analysis misses
+
+### **For Development Teams:**
+- **Code Review Process**: Enhanced PR reviews with architectural insights
+- **Onboarding**: Help new developers understand project structure and dependencies
+- **Technical Debt Assessment**: Identify architectural issues and improvement opportunities
+- **Framework Compliance**: Ensure adherence to team coding standards
+- **Knowledge Transfer**: Generate comprehensive project documentation
 
 ### **For Security Teams:**
-- **Regular Vulnerability Assessment**: Professional scanning without external tools
-- **Compliance Documentation**: Executive-ready security reports
-- **Framework-Specific Audits**: Tailored analysis for your technology stack
+- **Holistic Security Assessment**: Understand security implications across entire projects
+- **Compliance Documentation**: Professional reports for regulatory requirements
 - **Risk Management**: Quantified security scoring for management reporting
+- **Framework-Specific Audits**: Tailored analysis for your technology stack
 
 ### **For Content Creators:**
-- **Document Consolidation**: Merge multiple article drafts and research notes
-- **Content Organization**: Cluster interview transcripts and meeting notes
+- **Documentation Organization**: Merge scattered technical documentation
+- **Content Consolidation**: Organize research notes and article drafts
 - **Asset Management**: Clean up duplicate files and organize by topic
-
-### **For Professionals:**
-- **Document Management**: Organize resume versions, contracts, proposals
-- **Knowledge Base**: Consolidate training materials and documentation
-- **Project Organization**: Merge related documents by semantic similarity
 
 ---
 
 ## 🤝 Contributing
 
-Found a bug? Have a feature request? Want to contribute?
+Found a bug? Have a feature request? Want to contribute to the multi-file analysis engine?
 
 ### **How to Help:**
 1. **Report Issues**: Check existing issues on GitHub, create detailed bug reports
-2. **Feature Requests**: Suggest enhancements with use case descriptions  
-3. **Code Contributions**: PRs welcome for bug fixes and improvements
+2. **Feature Requests**: Suggest enhancements for multi-file analysis capabilities
+3. **Code Contributions**: PRs welcome for analysis improvements and new features
 4. **Documentation**: Help improve user guides and troubleshooting
+5. **Testing**: Help test the multi-file analysis with different project structures
 
 ### **Development Setup:**
 ```bash
@@ -476,16 +597,21 @@ source dev-env/bin/activate  # or dev-env\Scripts\activate on Windows
 # Install dependencies
 pip install -r requirements.txt
 
+# Run comprehensive tests
+python test_multi_file_analysis.py
+
 # Run the application
 python main.py
 ```
 
 ### **Code Standards:**
 - **Type Hints Required**: All new code must include comprehensive type annotations
+- **400-Line Limit**: Try to keep all modules under 400 lines for maintainability
 - **Single Responsibility**: Each module/class should have one clear purpose
 - **Local Imports**: Heavy dependencies should use local imports for startup performance
 - **Error Handling**: Graceful fallbacks with user-friendly error messages
 - **Privacy-First**: Minimize data transmission, maximize local processing
+- **Multi-File Aware**: Consider cross-file implications in new features
 
 ---
 
@@ -499,12 +625,13 @@ MIT License - Use freely in your own projects! See LICENSE file for details.
 
 A developer who got tired of:
 - ✋ **Breaking working code** with AI-generated "improvements"
+- 🤯 **Missing cross-file dependencies** that cause runtime errors
 - 🔓 **Deploying vulnerabilities** hidden in complex codebases  
 - 📄 **Managing chaos** across 15+ versions of the same document
-- 🐛 **Debugging issues** that could be caught before staging
+- 🐛 **Debugging issues** that span multiple files and could be caught earlier
 - 🗂️ **Document sprawl** with duplicates and scattered content
 
-If you build with LLMs, care about security, work with multiple document versions, and want to **analyze safely**, **organize intelligently**, and **deploy confidently**...
+If you build with LLMs, work with multi-file projects, care about security, and want to **analyze intelligently**, **organize efficiently**, and **deploy confidently**...
 
 **Wolfkit is for you.**
 
@@ -519,10 +646,10 @@ pip install -r requirements.txt
 python main.py
 ```
 
-**Try it. Test it. Secure it. Trust it.** 🐺
+**Try it. Test it. Analyze it. Trust it.** 🐺
 
 ---
 
-*"The best code review is the one that happens before you deploy. The best security analysis is the one that happens before you stage. The best document organization is the one that happens automatically."*
+*"The best code review is the one that understands your entire project. The best security analysis is the one that happens before you deploy. The best document organization is the one that happens automatically."*
 
-**Star ⭐ this repo if Wolfkit enhances your development workflow!**
+**Star ⭐ this repo if Wolfkit's multi-file analysis revolutionizes your development workflow!**
