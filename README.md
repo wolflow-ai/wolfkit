@@ -2,18 +2,19 @@
 
 **Try, Test, Trust.**
 
-Wolfkit is a comprehensive AI-powered development tool that combines safe code testing with intelligent document organization and enterprise-grade security analysis. Test AI-generated code in real projects with automatic backups, analyze code quality before deployment with **revolutionary multi-file context awareness**, scan for vulnerabilities with AI-powered insights, and seamlessly cluster related documents using semantic AI.
+Wolfkit is a comprehensive AI-powered development tool that combines safe code testing with intelligent document organization and enterprise-grade security analysis. Test AI-generated code in real projects with automatic backups, analyze code quality before deployment with **multi-file context awareness**, scan for vulnerabilities with AI-powered insights, and seamlessly cluster related documents using semantic AI. **Now includes file size monitoring to catch oversized files before they become maintenance problems.**
 
-**Current Version:** `v1.4.0` — Now with **Multi-File Code Analysis & Enhanced Architecture**
+**Current Version:** `v1.4.1` — Now with **File Size Analysis & Monitoring**
 
 ---
 
 ## Table of Contents
 - [What It Does](#-what-it-does)
-- [🆕 New in v1.4.0](#-new-in-v140-multi-file-analysis)
+- [🆕 New in v1.4.1](#-new-in-v141-file-size-analysis)
 - [Quickstart](#-quickstart)
 - [AI Setup](#-ai-features-setup)
 - [Multi-File Analysis](#-multi-file-analysis-features)
+- [File Size Monitoring](#-file-size-monitoring-features)
 - [Security Features](#-security-analysis-features)
 - [Why Use Wolfkit?](#-why-use-wolfkit)
 - [Complete Feature Set](#-complete-feature-set)
@@ -31,10 +32,10 @@ Wolfkit is a comprehensive AI-powered development tool that combines safe code t
 
 ## ⚡ What It Does
 
-### 🤖 **AI Code Review** 🔐 **NEW: Multi-File Analysis**
+### 🤖 **AI Code Review** 🔐 **Enhanced with File Size Analysis**
 - **Three Analysis Modes**: Single file, Module analysis, and Project-level architectural review
 - **Smart Dependency Detection**: Identifies missing imports available in other files
-- **False Positive Reduction**: Understands project structure to avoid incorrect flagging
+- **File Size Monitoring**: Configurable thresholds to catch oversized files
 - **Framework Intelligence**: Auto-detects FastAPI, Flask, Django, React, Vue, Express
 - Professional markdown reports with comprehensive project insights
 
@@ -62,55 +63,34 @@ Wolfkit is a comprehensive AI-powered development tool that combines safe code t
 
 ---
 
-## 🆕 New in v1.4.0: Multi-File Analysis 
+## 🆕 New in v1.4.1: File Size Analysis
 
-### 🎯 **Problem Solved**
-**Before**: *"Missing import error for `helper_function` - but it's defined in `utils.py`!"*
-**After**: *"✅ `helper_function` available in utils.py - suggested import: `from utils import helper_function`"*
+### 📏 **File Size Monitoring**
+Keep your codebase maintainable by monitoring file sizes and getting alerts when files grow too large.
 
-### 🚀 **Three Analysis Modes**
+### **Key Features:**
+- **Configurable Thresholds**: Choose from preset limits or define custom values
+- **Explicit Problem Identification**: Clear alerts for files that exceed size limits
+- **Smart Refactoring Suggestions**: Context-aware recommendations for splitting large files
+- **Quick Size Check**: Instant file size analysis without full AI review
+- **Integrated Reporting**: File size analysis included in all code review reports
 
-#### **1. Single File Analysis** (Original)
-- Traditional per-file analysis
-- Fast and focused
-- Perfect for quick reviews
+### **Threshold Presets:**
+- **Strict**: Optimal ≤250, Warning 500+, Critical 700+ lines
+- **Standard**: Optimal ≤400, Warning 800+, Critical 1200+ lines (Recommended)
+- **Relaxed**: Optimal ≤600, Warning 1000+, Critical 1500+ lines
+- **Legacy**: Optimal ≤800, Warning 1500+, Critical 2000+ lines
+- **Custom**: Define your own thresholds
 
-#### **2. Module Analysis** (NEW)
-- **Cross-file context awareness**
-- **Dependency resolution across files**
-- **Missing import detection with suggestions**
-- **Interface consistency checking**
-- **Module cohesion analysis**
+### **Sample Output:**
+```
+🚨 DANGEROUS FILES (>1200 lines) - IMMEDIATE ACTION REQUIRED:
+• models.py (1,247 lines) - 647 lines over optimal limit
+  └─ Split into separate model files by domain
 
-#### **3. Project Analysis** (NEW)
-- **Full architectural review**
-- **Dependency graph analysis**
-- **Framework compliance checking**
-- **Scalability assessment**
-- **Project-wide pattern detection**
-
-### 🧠 **Smart Context Building**
-- **Framework Detection**: FastAPI, Flask, Django, React, Vue, Express, Next.js
-- **Dependency Mapping**: Complete import/export analysis with AST parsing
-- **Global Symbol Resolution**: Tracks functions/classes across entire codebase
-- **Cross-Reference Validation**: Identifies missing imports available in other files
-- **Architecture Analysis**: Circular dependency detection and coupling assessment
-
-### 📊 **Enhanced Reporting**
-```markdown
-# Multi-File Analysis Report
-**Framework:** FastAPI
-**Files Analyzed:** 12
-**Cross-file Dependencies:** 23
-**Missing Imports Found:** 3
-
-## Cross-File Issues Found:
-- ❌ main.py: 'helper_function' available in utils.py but not imported
-- ⚠️ config.py: Circular dependency detected with database.py
-- ✅ Strong module cohesion detected in auth/ directory
-
-## Integration Summary:
-Files work well together with minor import issues easily resolved.
+⚠️  WARNING FILES (600-800 lines) - SHOULD BE REFACTORED:
+• api_handlers.py (743 lines) - 343 lines over optimal limit
+  └─ Split endpoints by feature area into separate files
 ```
 
 ---
@@ -201,21 +181,35 @@ result = helper_function("data")  # ❌ Flagged as undefined
 # - Database: PostgreSQL detected from imports
 ```
 
-### 📊 **Project Architecture Analysis**
-- **Dependency Graph**: Visual representation of file relationships
-- **Framework Detection**: Auto-identify tech stack and best practices
-- **Scalability Assessment**: Identify potential architectural bottlenecks
-- **Code Quality Metrics**: Consistency analysis across entire project
-- **Security Integration**: Cross-reference with security analysis findings
+---
 
-### 🔧 **Analysis Workflow**
-1. **Select Analysis Mode**: Single/Module/Project
-2. **Smart File Selection**: Context-aware file picker
-3. **Framework Detection**: Automatic tech stack identification
-4. **Dependency Mapping**: Complete import/export analysis
-5. **Context Building**: Cross-file relationship mapping
-6. **AI Analysis**: Enhanced prompts with full context
-7. **Professional Reporting**: Comprehensive insights and recommendations
+## 📏 File Size Monitoring Features
+
+### 🎯 **Proactive Code Quality**
+File size monitoring helps maintain clean, readable codebases by catching oversized files before they become maintenance problems.
+
+### **Analysis Integration:**
+- **Single File**: Check individual file sizes during analysis
+- **Module Analysis**: Monitor file sizes across related files with context
+- **Project Analysis**: Comprehensive file size assessment for entire codebase
+- **Quick Size Check**: Instant analysis without full AI review
+
+### **Smart Suggestions:**
+- **Context-Aware**: Suggestions based on file type and naming patterns
+- **Actionable**: Specific recommendations for splitting files
+- **Prioritized**: Focus on files that need immediate attention
+
+### **Professional Reporting:**
+- File size analysis section in all reports
+- Visual indicators for problematic files
+- Architecture health assessment
+- Detailed refactoring roadmap
+
+### **Configuration Options:**
+- Enable/disable file size analysis
+- Choose from preset thresholds or create custom limits
+- Real-time threshold preview
+- Settings persist across analysis sessions
 
 ---
 
@@ -252,12 +246,13 @@ Modern developers deal with:
 - **Multi-file complexity** where issues span across modules
 - **Security risks** hidden in large codebases
 - **Document chaos** with duplicates and scattered content
+- **Oversized files** that become maintenance nightmares
 - **Risk anxiety** when deploying untested code changes
 
 **Wolfkit = Confidence in your development workflow.**
 
-### 🎯 The Enhanced Five-Phase Approach:
-1. **🤖 Analyze** → Multi-file code review with cross-file context awareness
+### 🎯 The Complete Five-Phase Approach:
+1. **🤖 Analyze** → Multi-file code review with cross-file context awareness and file size monitoring
 2. **📄 Organize** → Cluster and merge related documents intelligently  
 3. **🛡️ Secure** → Scan for vulnerabilities with professional insights
 4. **🚀 Test** → Stage secure, reviewed code with automatic backups
@@ -267,13 +262,14 @@ Modern developers deal with:
 
 ## 🛠 Complete Feature Set
 
-### 🤖 Code Review Tab 🔐 **ENHANCED**
+### 🤖 Code Review Tab 🔐 **Enhanced with File Size Analysis**
 - **Three Analysis Modes**: Single file, Module, and Project analysis
 - **Smart Context Building**: Framework detection and dependency mapping
 - **Cross-file Validation**: Missing import detection and resolution
-- **Professional Reports**: Enhanced markdown reports with project insights
-- **Configuration Checking**: Multi-file capability verification
-- **Progress Tracking**: Real-time analysis feedback
+- **File Size Monitoring**: Configurable thresholds with explicit problem identification
+- **Quick Size Check**: Instant file size analysis without full AI review
+- **Professional Reports**: Enhanced markdown reports with project insights and file metrics
+- **Configuration Management**: Persistent settings for thresholds and analysis options
 
 ### 📄 Document Merge Tab 🔐
 - Select folder for document analysis and clustering
@@ -304,7 +300,7 @@ Modern developers deal with:
 - Quick navigation to specific features with visual feedback
 - Step-by-step workflows for all major operations
 - Troubleshooting guide and best practices
-- Updated with Multi-File Analysis documentation
+- Updated with File Size Analysis documentation
 
 ---
 
@@ -314,28 +310,20 @@ Modern developers deal with:
 
 ### **For Code Development:**
 1. **🤖 Code Review**: 
-   - **Single File**: Quick individual file analysis
-   - **Module**: Cross-file analysis with context awareness
-   - **Project**: Full architectural review and dependency analysis
+   - **Single File**: Quick individual file analysis with size check
+   - **Module**: Cross-file analysis with context awareness and size monitoring
+   - **Project**: Full architectural review with comprehensive file size assessment
 2. **📄 Document Merge**: Organize related project documentation  
 3. **🛡️ Security Analysis**: Scan for vulnerabilities and get professional insights
 4. **🚀 File Testing**: Stage secure, reviewed code with automatic backups
 5. **✅ Trust**: Accept changes confidently or revert instantly
 
-### **For Multi-File Analysis:**
-1. **📂 Select Analysis Mode** → Choose Single/Module/Project analysis
-2. **📁 Smart Selection** → Context-aware file or project selection
-3. **🔍 Framework Detection** → Automatic tech stack identification
-4. **🧠 Context Building** → Cross-file dependency mapping
-5. **🤖 AI Analysis** → Enhanced analysis with full project context
-6. **📊 Professional Reporting** → Comprehensive insights and recommendations
-
-### **For Project Architecture Review:**
-1. **🏗️ Select Project Directory** → Choose entire project for analysis
-2. **⚙️ Configure Analysis** → Set options and framework preferences
-3. **🔍 Run Analysis** → Multi-file architectural review
-4. **📊 Review Results** → Dependency graphs and scalability assessment
-5. **📄 Export Report** → Professional documentation for team review
+### **For File Size Management:**
+1. **📏 Quick Size Check** → Instant assessment of file sizes across your project
+2. **⚙️ Configure Thresholds** → Set limits that match your team's standards
+3. **🔍 Identify Problems** → Get explicit alerts for files that need attention
+4. **📋 Follow Suggestions** → Use context-aware refactoring recommendations
+5. **📊 Track Progress** → Monitor file size health over time
 
 ---
 
@@ -346,9 +334,10 @@ wolfkit/
 ├── main.py                      # Application entry point
 ├── controller.py                # Core business logic & workflow coordination
 ├── code_reviewer.py            # 🔐 Enhanced multi-file AI analysis orchestrator
-├── dependency_mapper.py        # 🆕 Import/export analysis and dependency graphs
-├── code_context_analyzer.py    # 🆕 Project structure analysis and context building
-├── multi_file_analyzer.py      # 🆕 Multi-file analysis coordination
+├── file_metrics_analyzer.py    # 🆕 File size analysis and monitoring engine
+├── dependency_mapper.py        # Import/export analysis and dependency graphs
+├── code_context_analyzer.py    # Project structure analysis and context building
+├── multi_file_analyzer.py      # Multi-file analysis coordination
 ├── document_merger.py          # 🔐 Document clustering and merging
 ├── security_analyzer.py        # 🔐 Local security vulnerability scanning
 ├── security_patterns.py        # Security pattern detection engine
@@ -356,7 +345,7 @@ wolfkit/
 ├── ui/
 │   ├── app_frame.py            # Main orchestrator with tab management
 │   ├── base_tab.py             # Common tab functionality and utilities
-│   ├── code_review_tab.py      # 🔐 Enhanced multi-file analysis interface
+│   ├── code_review_tab.py      # 🔐 Enhanced analysis interface with file size controls
 │   ├── document_merge_tab.py   # 🔐 Document clustering interface
 │   ├── security_analysis_tab.py # 🔐 Security scanning interface
 │   ├── main_workflow_tab.py    # File staging and testing interface
@@ -368,86 +357,49 @@ wolfkit/
 ├── assets/
 ├── backups/                    # Auto-generated file backups
 ├── reports/                    # AI analysis & security reports
-├── test_multi_file_analysis.py # 🆕 Comprehensive test suite
 └── requirements.txt
 ```
-
 
 ---
 
 ## 📄 Sample Reports
 
-### **Enhanced Multi-File Analysis Report**
+### **Enhanced Code Review Report with File Size Analysis**
 ```markdown
 # Wolfkit AI Code Review (Module Analysis)
-**Generated:** 2025-07-17 14:30:22
+**Generated:** 2025-07-18 14:30:22
 **Analysis Type:** Module
 **Framework:** FastAPI
-**Files Analyzed:** 4
-
-## Analysis Summary
-- **Target Files:** 4
-- **External Dependencies:** 8
-- **Missing Imports Found:** 2
-- **Cross-file Dependencies:** 6
+**Files Needing Size Attention:** 2
+**Architecture Health:** CONCERNING
 
 ## Target Files
-- `main.py`
+- `main.py` ⚠️
+- `models.py` 🚨
 - `utils.py`
 - `config.py`
-- `models.py`
 
----
-
-### Module Analysis Results
-
-**Overall Assessment:** Module shows good structure with minor import issues easily resolved.
-
+### Analysis Results
 **Cross-File Issues Found:**
 - ❌ main.py: 'helper_function' available in utils.py but not imported
-  - Suggested fix: `from utils import helper_function`
-- ❌ models.py: 'DATABASE_URL' used but not imported from config.py
-  - Suggested fix: `from config import DATABASE_URL`
-- ✅ Strong FastAPI patterns detected with proper route organization
+- ✅ Strong FastAPI patterns detected
 
-**Integration Summary:**
-Files work well together as a cohesive module. The FastAPI application structure follows best practices with clear separation of concerns between routing, utilities, and configuration.
+## 📏 File Size Analysis
+
+### 🚨 Dangerous Files (>1200 lines)
+| File | Lines | Over Optimal | Action Required |
+|------|-------|--------------|-----------------|
+| `models.py` | 1,247 | +847 | IMMEDIATE refactoring required |
+
+### ⚠️ Warning Files (600-799 lines)  
+| File | Lines | Over Optimal | Action Required |
+|------|-------|--------------|-----------------|
+| `main.py` | 743 | +343 | Should be refactored soon |
 
 **Recommendations:**
-1. Add missing imports identified above
-2. Consider creating an `__init__.py` file for proper package structure
-3. The database connection logic could be centralized in models.py
-
----
-
-*This module analysis was generated by Wolfkit's enhanced code review system with cross-file context awareness.*
-```
-
-### **Security Analysis Report**
-```markdown
-# 🛡️ Wolfkit Security Analysis Report
-**Generated:** 2025-07-17 14:30:22
-**Codebase:** `my-fastapi-project`
-**Framework:** FastAPI
-**Files Scanned:** 47
-
-## 🚨 Security Status: **HIGH** (Score: 67/100)
-
-| Severity | Count |
-|----------|--------|
-| 🔴 **Critical** | 2 |
-| 🟠 **High** | 5 |
-| 🟡 **Medium** | 12 |
-| **Total** | 19 |
-
-### Executive Summary
-The security analysis reveals a HIGH risk level requiring immediate 
-attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
-
-### Immediate Actions Required:
-- 🚨 Move API keys to environment variables
-- ⚠️ Add authentication to admin endpoints  
-- 🔧 Configure CORS middleware properly
+1. **Immediate**: Split models.py into domain-specific files
+2. **High Priority**: Add missing imports
+3. **Medium Priority**: Extract API routes from main.py
 ```
 
 ---
@@ -456,6 +408,7 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 
 ### **What Stays Local:**
 - ✅ **All source code** - never uploaded or transmitted
+- ✅ **File size analysis** - completely local processing
 - ✅ **Document content** - analyzed locally for clustering
 - ✅ **Security vulnerability detection** - pattern matching on your machine
 - ✅ **File backups** - stored in local `/backups/` directory
@@ -469,7 +422,7 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 
 ### **Privacy Guarantees:**
 - **No Raw Code Transmitted**: Only structured prompts and project context
-- **Enhanced Context Privacy**: Cross-file relationships analyzed locally
+- **File Size Analysis is Local**: No external API calls for size monitoring
 - **OpenAI Data Policy**: No data retention per OpenAI API terms of service
 - **Automatic Backups**: Every file replacement backed up until you accept changes
 - **Reversible Operations**: All merges and staging operations can be undone
@@ -479,41 +432,27 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 
 ## 🚀 Version History & Roadmap
 
-### ✅ v1.4.0 – Multi-File Analysis
-- **Revolutionary Enhancement**: Cross-file context awareness for code review
-- **Three Analysis Modes**: Single file, Module, and Project-level analysis
+### ✅ v1.4.1 – File Size Analysis & Monitoring
+- **File Size Monitoring**: Configurable thresholds to catch oversized files
+- **Explicit Problem Identification**: Clear alerts for files needing attention
+- **Smart Refactoring Suggestions**: Context-aware recommendations for splitting files
+- **Quick Size Check**: Instant file size analysis without full AI review
+- **Integrated Reporting**: File size analysis in all code review reports
+- **Professional UI**: Clean settings panel with preset and custom thresholds
+- **Zero Dependencies**: File size analysis uses only Python standard library
+
+### ✅ v1.4.0 – Multi-File Analysis Revolution
+- **Cross-file context awareness** for code review eliminates false positives
+- **Three Analysis Modes**: Single file, Module analysis, and Project-level review
 - **Smart Dependency Detection**: Missing import identification with suggestions
 - **Framework Intelligence**: Auto-detection of FastAPI, Flask, Django, React, etc.
-- **Professional Architecture**: 4 focused modules under 400 lines each
-- **Enhanced Reporting**: Context-aware insights and recommendations
-- **Performance Optimized**: AST parsing with intelligent caching
-- **Backward Compatible**: All existing functionality preserved
+- **Professional Architecture**: Clean modular design with focused components
 
 ### ✅ v1.3.2 – Security Analysis Revolution
 - **Comprehensive Security Analysis**: OWASP Top 10 vulnerability detection
 - **Hybrid Architecture**: Local scanning + AI-powered professional reporting
-- **Framework Intelligence**: FastAPI, Flask, Django specific security checks
+- **Framework Intelligence**: Technology-specific security checks
 - **Professional Reporting**: Executive summaries with technical details
-- **Enhanced Documentation**: Complete Security Analysis user guide
-
-### ✅ v1.3.1 – Enhanced Features & Architecture
-- **85% Code Reduction**: Main orchestrator from 1,306 → 200 lines
-- **Priority-Based Tab Ordering**: Logical workflow optimization
-- **Clear Interface Naming**: Improved user experience
-- **Working Navigation**: Fixed documentation with visual feedback
-
-### ✅ v1.3.0 – Document Clustering & Merge
-- **Document Merge Tab**: AI-powered semantic document organization
-- **Universal Document Support**: PDF, Word, Text, Markdown, Code files
-- **Smart Clustering**: AI embeddings for content similarity
-- **Visual Interface**: Interactive cluster cards with previews
-
-### ✅ v1.2.0 – AI Code Review Foundation
-- **AI Code Review Tab**: Pre-flight analysis of LLM-generated code
-- **Multi-File Analysis**: Review entire batches with progress tracking
-- **Professional Reports**: Markdown analysis reports
-- **Budget-Friendly**: gpt-4o-mini integration
-
 
 ---
 
@@ -523,8 +462,9 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 | Feature | API Required | Typical Cost | Notes |
 |---------|-------------|--------------|-------|
 | 🤖 Code Review (Single) | ✅ OpenAI | ~$0.002-0.005/file | Traditional analysis |
-| 🤖 Code Review (Module) | ✅ OpenAI | ~$0.01-0.02/module | 🆕 Cross-file analysis |
-| 🤖 Code Review (Project) | ✅ OpenAI | ~$0.05-0.15/project | 🆕 Architectural review |
+| 🤖 Code Review (Module) | ✅ OpenAI | ~$0.01-0.02/module | Cross-file analysis |
+| 🤖 Code Review (Project) | ✅ OpenAI | ~$0.05-0.15/project | Architectural review |
+| 📏 File Size Analysis | ❌ None | **FREE** | Local processing only |
 | 📄 Document Merge | ✅ OpenAI | ~$0.01-0.05/batch | Semantic clustering |
 | 🛡️ Security Analysis | ✅ OpenAI | ~$0.01-0.03/scan | Professional reporting |
 | 🚀 File Testing | ❌ None | **FREE** | Local file operations |
@@ -537,52 +477,40 @@ attention for 2 critical hardcoded API keys and 5 unprotected endpoints.
 
 ### ✅ No Hidden Costs:
 - **No subscription fees** - pay only for AI usage
+- **File Size Analysis is FREE** - completely local processing
 - **No per-user licensing** - single purchase, unlimited local use  
 - **No data storage charges** - everything stored locally
 - **Transparent billing** - direct OpenAI API usage tracking
-- **Enhanced value** - Multi-file analysis provides significantly more insight per dollar
 
 ---
 
 ## 🌍 Real-World Use Cases
 
 ### **For Developers:**
+- **File Size Management**: Keep codebases maintainable with proactive size monitoring
 - **Multi-Module Projects**: Analyze entire Flask/FastAPI applications with cross-file context
 - **AI Code Integration**: Review ChatGPT/Claude-generated code across multiple files
-- **Refactoring Projects**: Understand dependencies before major code restructuring
-- **Framework Migration**: Assess compatibility when moving between frameworks
-- **Code Quality Assurance**: Catch cross-file issues that single-file analysis misses
+- **Refactoring Projects**: Understand dependencies and file sizes before major restructuring
+- **Code Quality Assurance**: Catch cross-file issues and oversized files early
 
 ### **For Development Teams:**
-- **Code Review Process**: Enhanced PR reviews with architectural insights
-- **Onboarding**: Help new developers understand project structure and dependencies
-- **Technical Debt Assessment**: Identify architectural issues and improvement opportunities
-- **Framework Compliance**: Ensure adherence to team coding standards
-- **Knowledge Transfer**: Generate comprehensive project documentation
-
-### **For Security Teams:**
-- **Holistic Security Assessment**: Understand security implications across entire projects
-- **Compliance Documentation**: Professional reports for regulatory requirements
-- **Risk Management**: Quantified security scoring for management reporting
-- **Framework-Specific Audits**: Tailored analysis for your technology stack
-
-### **For Content Creators:**
-- **Documentation Organization**: Merge scattered technical documentation
-- **Content Consolidation**: Organize research notes and article drafts
-- **Asset Management**: Clean up duplicate files and organize by topic
+- **Code Standards Enforcement**: Set team-wide file size limits and monitor compliance
+- **Technical Debt Management**: Identify and prioritize oversized files for refactoring
+- **Code Review Process**: Enhanced PR reviews with architectural and size insights
+- **Onboarding**: Help new developers understand project structure and standards
 
 ---
 
 ## 🤝 Contributing
 
-Found a bug? Have a feature request? Want to contribute to the multi-file analysis engine?
+Found a bug? Have a feature request? Want to contribute to the file size analysis engine?
 
 ### **How to Help:**
 1. **Report Issues**: Check existing issues on GitHub, create detailed bug reports
-2. **Feature Requests**: Suggest enhancements for multi-file analysis capabilities
+2. **Feature Requests**: Suggest enhancements for file size monitoring or analysis
 3. **Code Contributions**: PRs welcome for analysis improvements and new features
 4. **Documentation**: Help improve user guides and troubleshooting
-5. **Testing**: Help test the multi-file analysis with different project structures
+5. **Testing**: Help test file size analysis with different project structures
 
 ### **Development Setup:**
 ```bash
@@ -597,21 +525,16 @@ source dev-env/bin/activate  # or dev-env\Scripts\activate on Windows
 # Install dependencies
 pip install -r requirements.txt
 
-# Run comprehensive tests
-python test_multi_file_analysis.py
-
 # Run the application
 python main.py
 ```
 
 ### **Code Standards:**
 - **Type Hints Required**: All new code must include comprehensive type annotations
-- **400-Line Limit**: Try to keep all modules under 400 lines for maintainability
+- **400-Line Limit**: Keep modules under 400 lines for maintainability (practice what we preach!)
 - **Single Responsibility**: Each module/class should have one clear purpose
-- **Local Imports**: Heavy dependencies should use local imports for startup performance
-- **Error Handling**: Graceful fallbacks with user-friendly error messages
-- **Privacy-First**: Minimize data transmission, maximize local processing
-- **Multi-File Aware**: Consider cross-file implications in new features
+- **Local Processing**: Prefer local analysis over external API calls when possible
+- **Graceful Fallbacks**: Handle missing dependencies and modules gracefully
 
 ---
 
@@ -626,12 +549,12 @@ MIT License - Use freely in your own projects! See LICENSE file for details.
 A developer who got tired of:
 - ✋ **Breaking working code** with AI-generated "improvements"
 - 🤯 **Missing cross-file dependencies** that cause runtime errors
+- 📏 **Maintaining massive files** that should have been split long ago
 - 🔓 **Deploying vulnerabilities** hidden in complex codebases  
 - 📄 **Managing chaos** across 15+ versions of the same document
-- 🐛 **Debugging issues** that span multiple files and could be caught earlier
 - 🗂️ **Document sprawl** with duplicates and scattered content
 
-If you build with LLMs, work with multi-file projects, care about security, and want to **analyze intelligently**, **organize efficiently**, and **deploy confidently**...
+If you build with LLMs, work with multi-file projects, care about code quality and maintainability, and want to **analyze intelligently**, **organize efficiently**, and **deploy confidently**...
 
 **Wolfkit is for you.**
 
@@ -650,6 +573,6 @@ python main.py
 
 ---
 
-*"The best code review is the one that understands your entire project. The best security analysis is the one that happens before you deploy. The best document organization is the one that happens automatically."*
+*"The best code review is the one that understands your entire project and keeps your files maintainable. The best security analysis is the one that happens before you deploy. The best document organization is the one that happens automatically."*
 
-**Star ⭐ this repo if Wolfkit's multi-file analysis revolutionizes your development workflow!**
+**Star ⭐ this repo if Wolfkit's file size monitoring helps keep your codebase clean and maintainable!**
