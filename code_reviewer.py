@@ -1,7 +1,7 @@
-# code_reviewer.py (Enhanced)
+# code_reviewer.py (Enhanced with File Size Analysis)
 """
-Enhanced Code Reviewer for Wolfkit - Now with multi-file analysis capabilities
-Maintains backward compatibility while adding module and project-level analysis
+Enhanced Code Reviewer for Wolfkit - Now with multi-file analysis capabilities and file size monitoring
+Maintains backward compatibility while adding module and project-level analysis with comprehensive file metrics
 """
 import os
 import json
@@ -27,6 +27,7 @@ except ImportError:
 from multi_file_analyzer import MultiFileAnalyzer, AnalysisResult
 from code_context_analyzer import CodeContextAnalyzer
 from dependency_mapper import DependencyMapper
+from file_metrics_analyzer import generate_file_size_report_section
 
 
 class AnalysisScope(Enum):
@@ -38,7 +39,7 @@ class AnalysisScope(Enum):
 
 class CodeReviewer:
     """
-    Enhanced code reviewer with multi-file analysis capabilities
+    Enhanced code reviewer with multi-file analysis capabilities and file size monitoring
     """
     
     def __init__(self):
@@ -129,6 +130,25 @@ class CodeReviewer:
             return False, "", f"Project path does not exist: {project_path}"
         
         return self._analyze_entire_project(project_path)
+
+    def configure_file_size_analysis(self, enabled: bool = True, preset: str = "standard", 
+                                    custom_thresholds: dict = None):
+        """
+        Configure file size analysis settings
+        
+        Args:
+            enabled: Whether to include file size analysis
+            preset: Preset name for thresholds
+            custom_thresholds: Custom threshold values
+        """
+        if self.multi_file_analyzer:
+            self.multi_file_analyzer.include_file_analysis = enabled
+            
+            if enabled:
+                if custom_thresholds:
+                    self.multi_file_analyzer.update_file_size_settings(custom_thresholds=custom_thresholds)
+                else:
+                    self.multi_file_analyzer.update_file_size_settings(preset=preset)
 
     # === IMPLEMENTATION METHODS ===
 
@@ -221,12 +241,14 @@ class CodeReviewer:
             return False, "", f"Project analysis failed: {str(e)}"
 
     def _generate_multi_file_report(self, result: AnalysisResult, analysis_type: str) -> str:
-        """Generate report for multi-file analysis"""
+        """
+        Generate enhanced report for multi-file analysis with file size integration
+        """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         report_filename = f"wolfkit_{analysis_type.lower()}_analysis_{timestamp}.md"
         report_path = os.path.join(self.reports_dir, report_filename)
         
-        # Build report content
+        # Build report content with file size analysis
         report_content = f"""# Wolfkit AI Code Review ({analysis_type} Analysis)
 **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}  
 **Analysis Type:** {analysis_type}  
@@ -248,6 +270,12 @@ class CodeReviewer:
                 report_content += f"- **External Dependencies:** {summary['external_deps']}\n"
             if summary.get('missing_imports'):
                 report_content += f"- **Missing Imports Found:** {summary['missing_imports']}\n"
+            
+            # NEW: Add file size summary to header
+            if summary.get('files_needing_action') is not None:
+                report_content += f"- **Files Needing Size Attention:** {summary['files_needing_action']}\n"
+            if summary.get('architecture_health'):
+                report_content += f"- **Architecture Health:** {summary['architecture_health']}\n"
 
         report_content += f"""
 ---
@@ -255,10 +283,26 @@ class CodeReviewer:
 ## Target Files
 """
         
-        # List target files
+        # List target files with size indicators
         for file_path in result.target_files:
             rel_path = Path(file_path).name
-            report_content += f"- `{rel_path}`\n"
+            
+            # Add size indicator if file metrics available
+            size_indicator = ""
+            if hasattr(result, 'file_metrics') and result.file_metrics:
+                for file_metric in result.file_metrics.files_by_category.get('warning', []) + \
+                                  result.file_metrics.files_by_category.get('critical', []) + \
+                                  result.file_metrics.files_by_category.get('dangerous', []):
+                    if rel_path in file_metric.file_path:
+                        if file_metric.size_category.value == "dangerous":
+                            size_indicator = " 🚨"
+                        elif file_metric.size_category.value == "critical":
+                            size_indicator = " 🔥"
+                        elif file_metric.size_category.value == "warning":
+                            size_indicator = " ⚠️"
+                        break
+            
+            report_content += f"- `{rel_path}`{size_indicator}\n"
 
         report_content += f"""
 ---
@@ -266,8 +310,15 @@ class CodeReviewer:
 {result.analysis_content}
 
 ---
+"""
 
-*This {analysis_type.lower()} analysis was generated by Wolfkit's enhanced code review system with cross-file context awareness.*
+        # NEW: Add file size analysis section if available
+        if hasattr(result, 'file_metrics') and result.file_metrics:
+            file_size_section = generate_file_size_report_section(result.file_metrics)
+            report_content += f"\n{file_size_section}\n---\n"
+
+        report_content += f"""
+*This {analysis_type.lower()} analysis was generated by Wolfkit's enhanced code review system with cross-file context awareness and comprehensive file size monitoring.*
 """
 
         # Write report
@@ -436,13 +487,14 @@ Pay special attention to:
             capabilities.append("✅ Multi-file analysis ready")
             capabilities.append("✅ Module analysis ready")
             capabilities.append("✅ Project analysis ready")
+            capabilities.append("✅ File size analysis ready")
         else:
             capabilities.append("⚠️ Multi-file analysis limited (check API key)")
         
         return True, "Code reviewer is properly configured and ready to use.\n" + "\n".join(capabilities)
 
     def get_analysis_capabilities(self) -> Dict[str, any]:
-        """Get information about available analysis capabilities"""
+        """Get enhanced analysis capabilities including file metrics"""
         base_capabilities = {
             'single_file': True,
             'openai_available': OPENAI_AVAILABLE,
@@ -456,7 +508,10 @@ Pay special attention to:
             base_capabilities.update({
                 'ai_available': False,
                 'supported_scopes': ['single'],
-                'max_files_per_analysis': 1
+                'max_files_per_analysis': 1,
+                'file_size_analysis': False,
+                'file_size_presets': [],
+                'current_preset': 'none'
             })
         
         return base_capabilities
