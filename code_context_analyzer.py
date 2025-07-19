@@ -1,4 +1,4 @@
-# code_context_analyzer.py
+# code_context_analyzer.py (FIXED)
 """
 Code Context Analyzer for Wolfkit Code Review Enhancement
 Builds comprehensive project context for multi-file analysis
@@ -72,15 +72,39 @@ class CodeContextAnalyzer:
             'nextjs': ['next', 'Next', 'getServerSideProps', 'getStaticProps']
         }
     
-    def analyze_project_structure(self, project_path: str) -> ProjectContext:
+    def analyze_project_structure(self, project_path: str) -> Dict[str, Any]:
         """
         Analyze entire project structure for comprehensive context
+        Returns dictionary format expected by MultiFileAnalyzer
         
         Args:
             project_path: Path to the project root
             
         Returns:
-            ProjectContext with complete project analysis
+            Dictionary with complete project analysis (not ProjectContext object)
+        """
+        # Get the full ProjectContext
+        context = self._analyze_project_structure_full(project_path)
+        
+        # Convert to dictionary format expected by MultiFileAnalyzer
+        return {
+            'framework': context.detected_framework,
+            'database': getattr(context, 'database_type', None),
+            'framework_files': context.framework_files,
+            'project_structure': context.project_structure,
+            'file_structure': context.project_structure,  # Alias
+            'dependency_graph': context.dependency_graph,
+            'global_symbols': context.global_symbols,
+            'missing_imports': context.missing_imports,
+            'external_dependencies': list(context.external_dependencies),
+            'internal_dependencies': list(context.internal_dependencies),
+            'total_files': len(context.all_files),
+            'target_files': len(context.target_files)
+        }
+    
+    def _analyze_project_structure_full(self, project_path: str) -> ProjectContext:
+        """
+        Internal method that returns full ProjectContext object
         """
         project_path = Path(project_path).resolve()
         
@@ -169,6 +193,34 @@ class CodeContextAnalyzer:
         context.framework_files = self._find_framework_files(file_paths, context.detected_framework)
         
         return context
+    
+    def analyze_file_relationships(self, file_paths: List[str]) -> Dict[str, Any]:
+        """
+        Analyze relationships between files (expected by MultiFileAnalyzer)
+        
+        Args:
+            file_paths: List of file paths to analyze
+            
+        Returns:
+            Context dictionary with file relationship information
+        """
+        # This is a wrapper around the existing build_context_for_files method
+        context = self.build_context_for_files(file_paths)
+        
+        # Extract the relevant information that MultiFileAnalyzer expects
+        # Convert ProjectContext object to dictionary format
+        return {
+            'framework': context.detected_framework,
+            'database': getattr(context, 'database_type', None),  # Safe access
+            'framework_files': context.framework_files,
+            'project_structure': context.project_structure,
+            'file_structure': context.project_structure,  # Alias for compatibility
+            'file_relationships': context.dependency_graph,
+            'global_symbols': context.global_symbols,
+            'missing_imports': context.missing_imports,
+            'external_dependencies': list(context.external_dependencies),
+            'internal_dependencies': list(context.internal_dependencies)
+        }
     
     def _scan_source_files(self, project_path: Path) -> List[str]:
         """Scan directory for source files"""
@@ -325,199 +377,3 @@ class CodeContextAnalyzer:
                 continue
         
         return framework_files
-    
-    def generate_context_prompt(self, context: ProjectContext) -> str:
-        """
-        Generate a comprehensive context prompt for AI analysis
-        
-        Args:
-            context: ProjectContext object with analysis results
-            
-        Returns:
-            Formatted prompt string with project context
-        """
-        prompt_parts = []
-        
-        # Header
-        prompt_parts.append("=== PROJECT CONTEXT ===")
-        prompt_parts.append(f"Analysis Scope: {context.analysis_scope}")
-        prompt_parts.append(f"Project Path: {context.project_path}")
-        
-        # Framework information
-        if context.detected_framework:
-            prompt_parts.append(f"Framework: {context.detected_framework}")
-            if context.framework_files:
-                prompt_parts.append(f"Framework Files: {len(context.framework_files)}")
-        
-        # File structure
-        prompt_parts.append(f"\nFILE STRUCTURE:")
-        prompt_parts.append(f"Target Files: {len(context.target_files)}")
-        prompt_parts.append(f"Total Context Files: {len(context.all_files)}")
-        
-        # Dependencies
-        if context.external_dependencies:
-            prompt_parts.append(f"\nEXTERNAL DEPENDENCIES:")
-            for dep in sorted(context.external_dependencies):
-                prompt_parts.append(f"- {dep}")
-        
-        if context.internal_dependencies:
-            prompt_parts.append(f"\nINTERNAL DEPENDENCIES:")
-            for dep in sorted(context.internal_dependencies):
-                prompt_parts.append(f"- {dep}")
-        
-        # Missing imports (key insight for AI)
-        if context.missing_imports:
-            prompt_parts.append(f"\nPOTENTIAL MISSING IMPORTS:")
-            for file_path, missing_list in context.missing_imports.items():
-                rel_path = Path(file_path).relative_to(context.project_path)
-                prompt_parts.append(f"In {rel_path}:")
-                for missing in missing_list:
-                    symbol = missing['symbol']
-                    sources = missing['available_in']
-                    source_names = [Path(s).name for s in sources]
-                    prompt_parts.append(f"  - '{symbol}' available in: {', '.join(source_names)}")
-        
-        # Cross-file relationships
-        if context.dependency_graph:
-            prompt_parts.append(f"\nFILE RELATIONSHIPS:")
-            for file_path, dependencies in context.dependency_graph.items():
-                if dependencies:
-                    rel_path = Path(file_path).relative_to(context.project_path)
-                    dep_names = [Path(d).name for d in dependencies]
-                    prompt_parts.append(f"{rel_path.name} depends on: {', '.join(dep_names)}")
-        
-        # Global symbols (functions/classes available across files)
-        if context.global_symbols:
-            prompt_parts.append(f"\nGLOBAL SYMBOLS:")
-            for symbol, files in context.global_symbols.items():
-                if len(files) > 1:  # Only show symbols in multiple files
-                    file_names = [Path(f).name for f in files]
-                    prompt_parts.append(f"'{symbol}' defined in: {', '.join(file_names)}")
-        
-        # Target file details
-        prompt_parts.append(f"\nTARGET FILES ANALYSIS:")
-        for file_path in context.target_files:
-            rel_path = Path(file_path).relative_to(context.project_path)
-            analysis = context.file_analyses.get(file_path)
-            
-            if analysis:
-                prompt_parts.append(f"\n{rel_path}:")
-                
-                # Imports
-                if analysis.imports:
-                    prompt_parts.append(f"  Imports: {len(analysis.imports)}")
-                    for imp in analysis.imports[:5]:  # Show first 5
-                        if imp.is_from_import:
-                            prompt_parts.append(f"    from {imp.module} import {', '.join(imp.names)}")
-                        else:
-                            prompt_parts.append(f"    import {imp.module}")
-                    if len(analysis.imports) > 5:
-                        prompt_parts.append(f"    ... and {len(analysis.imports) - 5} more")
-                
-                # Exports
-                if analysis.exports:
-                    prompt_parts.append(f"  Exports: {len(analysis.exports)}")
-                    for exp in analysis.exports[:5]:  # Show first 5
-                        if exp.type == 'function' and exp.signature:
-                            prompt_parts.append(f"    {exp.signature}")
-                        else:
-                            prompt_parts.append(f"    {exp.type}: {exp.name}")
-                    if len(analysis.exports) > 5:
-                        prompt_parts.append(f"    ... and {len(analysis.exports) - 5} more")
-        
-        prompt_parts.append("\n=== END CONTEXT ===\n")
-        
-        return "\n".join(prompt_parts)
-    
-    def get_context_summary(self, context: ProjectContext) -> Dict[str, Any]:
-        """
-        Get a summary of the project context for UI display
-        
-        Args:
-            context: ProjectContext object
-            
-        Returns:
-            Summary dict with key metrics
-        """
-        return {
-            'scope': context.analysis_scope,
-            'framework': context.detected_framework,
-            'target_files': len(context.target_files),
-            'total_files': len(context.all_files),
-            'external_deps': len(context.external_dependencies),
-            'internal_deps': len(context.internal_dependencies),
-            'missing_imports': sum(len(missing) for missing in context.missing_imports.values()),
-            'cross_file_deps': sum(len(deps) for deps in context.dependency_graph.values()),
-            'global_symbols': len(context.global_symbols)
-        }
-    
-    def find_related_files(self, context: ProjectContext, target_file: str) -> List[str]:
-        """
-        Find files related to a target file based on imports and dependencies
-        
-        Args:
-            context: ProjectContext object
-            target_file: File to find relations for
-            
-        Returns:
-            List of related file paths
-        """
-        related = set()
-        
-        # Files that import from target file
-        for file_path, deps in context.dependency_graph.items():
-            if target_file in deps:
-                related.add(file_path)
-        
-        # Files that target file imports from
-        if target_file in context.dependency_graph:
-            related.update(context.dependency_graph[target_file])
-        
-        # Files in same directory
-        target_dir = Path(target_file).parent
-        for file_path in context.all_files:
-            if Path(file_path).parent == target_dir and file_path != target_file:
-                related.add(file_path)
-        
-        return sorted(related)
-    
-    def validate_context(self, context: ProjectContext) -> Dict[str, Any]:
-        """
-        Validate the completeness and accuracy of the context
-        
-        Args:
-            context: ProjectContext to validate
-            
-        Returns:
-            Validation results
-        """
-        issues = []
-        warnings = []
-        
-        # Check for empty target files
-        if not context.target_files:
-            issues.append("No target files specified")
-        
-        # Check for missing file analyses
-        for file_path in context.target_files:
-            if file_path not in context.file_analyses:
-                issues.append(f"Missing analysis for {file_path}")
-        
-        # Check for potential circular dependencies
-        for file_path, deps in context.dependency_graph.items():
-            for dep in deps:
-                if dep in context.dependency_graph and file_path in context.dependency_graph[dep]:
-                    warnings.append(f"Circular dependency: {Path(file_path).name} ↔ {Path(dep).name}")
-        
-        # Check for orphaned files (no imports/exports)
-        for file_path in context.target_files:
-            analysis = context.file_analyses.get(file_path)
-            if analysis and not analysis.imports and not analysis.exports:
-                warnings.append(f"Orphaned file (no imports/exports): {Path(file_path).name}")
-        
-        return {
-            'valid': len(issues) == 0,
-            'issues': issues,
-            'warnings': warnings,
-            'stats': self.get_context_summary(context)
-        }

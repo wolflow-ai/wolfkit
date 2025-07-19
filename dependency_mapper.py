@@ -393,7 +393,7 @@ class DependencyMapper:
     
     def resolve_cross_file_references(self, file_paths: List[str]) -> Dict[str, Any]:
         """
-        Resolve cross-file references and missing imports
+        Resolve cross-file references and missing imports (FIXED)
         
         Args:
             file_paths: List of file paths to analyze
@@ -411,30 +411,34 @@ class DependencyMapper:
                     global_symbols[definition] = []
                 global_symbols[definition].append(file_path)
         
-        # Find missing imports
+        # Find missing imports (FIXED error handling)
         missing_imports = {}
         for file_path, analysis in analyses.items():
             missing = []
             
-            # Simple heuristic: look for undefined names in code
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # Find potential undefined references
-            words = re.findall(r'\b[a-zA-Z_]\w*\b', content)
-            for word in set(words):
-                if (word not in analysis.local_definitions and 
-                    word not in [imp.module for imp in analysis.imports] and
-                    word not in ['if', 'else', 'for', 'while', 'def', 'class', 'return', 'import', 'from'] and
-                    word in global_symbols):
-                    
-                    # This might be a missing import
-                    potential_sources = global_symbols[word]
-                    if file_path not in potential_sources:
-                        missing.append({
-                            'symbol': word,
-                            'available_in': potential_sources
-                        })
+            try:
+                # Simple heuristic: look for undefined names in code
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                
+                # Find potential undefined references
+                words = re.findall(r'\b[a-zA-Z_]\w*\b', content)
+                for word in set(words):
+                    if (word not in analysis.local_definitions and 
+                        word not in [imp.module for imp in analysis.imports] and
+                        word not in ['if', 'else', 'for', 'while', 'def', 'class', 'return', 'import', 'from'] and
+                        word in global_symbols):
+                        
+                        # This might be a missing import
+                        potential_sources = global_symbols[word]
+                        if file_path not in potential_sources:
+                            missing.append({
+                                'symbol': word,
+                                'available_in': potential_sources
+                            })
+            except Exception as e:
+                # Skip files that can't be read properly
+                continue
             
             if missing:
                 missing_imports[file_path] = missing
@@ -484,3 +488,106 @@ class DependencyMapper:
                 for imp in all_imports
             ]
         }
+    
+    def analyze_files(self, file_paths: List[str]) -> Dict[str, Any]:
+        """
+        Analyze dependencies for a list of files (expected by MultiFileAnalyzer)
+        
+        Args:
+            file_paths: List of file paths to analyze
+            
+        Returns:
+            Dictionary containing dependency analysis results
+        """
+        # Use existing cross-file reference resolution
+        cross_file_info = self.resolve_cross_file_references(file_paths)
+        
+        # Get import summary for additional context
+        import_summary = self.get_import_summary(file_paths)
+        
+        # Combine into expected format
+        return {
+            'dependency_graph': cross_file_info['dependency_graph'],
+            'global_symbols': cross_file_info['global_symbols'],
+            'missing_imports': cross_file_info['missing_imports'],
+            'external_deps': import_summary['external_dependencies'],
+            'internal_deps': import_summary['internal_dependencies'],
+            'cross_file_refs': cross_file_info['dependency_graph'],
+            'circular_deps': self._detect_circular_dependencies(cross_file_info['dependency_graph'])
+        }
+    
+    def analyze_project(self, project_path: str) -> Dict[str, Any]:
+        """
+        Analyze dependencies for an entire project (expected by MultiFileAnalyzer)
+        
+        Args:
+            project_path: Path to project root directory
+            
+        Returns:
+            Dictionary containing project-wide dependency analysis
+        """
+        # Discover all source files in the project
+        project_files = self._discover_project_files(project_path)
+        
+        # Use existing file analysis but on project scale
+        return self.analyze_files(project_files)
+    
+    def _discover_project_files(self, project_path: str) -> List[str]:
+        """
+        Discover source files in a project directory (FIXED syntax error)
+        
+        Args:
+            project_path: Path to project root
+            
+        Returns:
+            List of source file paths
+        """
+        source_extensions = {'.py', '.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.json', '.md'}
+        skip_dirs = {'node_modules', 'venv', 'env', '.git', '__pycache__'}
+        
+        source_files = []
+        
+        try:
+            for root, dirs, files in os.walk(project_path):
+                # FIXED: Proper directory filtering without slice assignment
+                filtered_dirs = [d for d in dirs if d not in skip_dirs]
+                dirs.clear()
+                dirs.extend(filtered_dirs)
+                
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    if Path(file_path).suffix.lower() in source_extensions:
+                        source_files.append(file_path)
+                        
+                # Reasonable limit to prevent excessive scanning
+                if len(source_files) > 500:
+                    break
+                        
+        except PermissionError:
+            # Skip directories we can't access
+            pass
+        
+        return sorted(source_files)
+    
+    def _detect_circular_dependencies(self, dependency_graph: Dict[str, Set[str]]) -> List[Tuple[str, str]]:
+        """
+        Detect circular dependencies in the dependency graph
+        
+        Args:
+            dependency_graph: Dictionary mapping files to their dependencies
+            
+        Returns:
+            List of tuples representing circular dependencies
+        """
+        circular_deps = []
+        
+        for file_path, deps in dependency_graph.items():
+            for dep in deps:
+                # Check if dependency also depends on original file
+                if dep in dependency_graph and file_path in dependency_graph[dep]:
+                    # Avoid duplicate pairs
+                    pair = tuple(sorted([file_path, dep]))
+                    if pair not in circular_deps:
+                        circular_deps.append(pair)
+        
+        return circular_deps

@@ -1,4 +1,4 @@
-# multi_file_analyzer.py (Enhanced with File Size Analysis)
+# multi_file_analyzer.py (Enhanced with File Size Analysis - Fixed)
 """
 Enhanced Multi-File Analyzer for Wolfkit - Now with integrated file size analysis
 Coordinates multi-file analysis with comprehensive file metrics
@@ -79,10 +79,10 @@ class MultiFileAnalyzer:
             Enhanced AnalysisResult with file metrics
         """
         try:
-            # Step 1: Build context for the module
+            # Step 1: Build context for the module (FIXED METHOD CALL)
             context = self.context_analyzer.analyze_file_relationships(file_paths)
             
-            # Step 2: Map dependencies within the module
+            # Step 2: Map dependencies within the module (FIXED METHOD CALL)
             dependencies = self.dependency_mapper.analyze_files(file_paths)
             
             # Step 3: NEW - Analyze file sizes
@@ -130,10 +130,10 @@ class MultiFileAnalyzer:
             # Step 1: Discover all relevant files in project
             project_files = self._discover_project_files(project_path)
             
-            # Step 2: Build project context
+            # Step 2: Build project context (unchanged - this method exists)
             context = self.context_analyzer.analyze_project_structure(project_path)
             
-            # Step 3: Map project dependencies
+            # Step 3: Map project dependencies (FIXED METHOD CALL)
             dependencies = self.dependency_mapper.analyze_project(project_path)
             
             # Step 4: NEW - Comprehensive file size analysis
