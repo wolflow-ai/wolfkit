@@ -1,4 +1,4 @@
-# code_context_analyzer.py (FIXED)
+# code_context_analyzer.py (FIXED) change
 """
 Code Context Analyzer for Wolfkit Code Review Enhancement
 Builds comprehensive project context for multi-file analysis
